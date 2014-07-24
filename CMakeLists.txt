@@ -25,6 +25,6 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 add_executable(fake_dynamic_reconfigure_server src/fake_dynamic_reconfigure_server.cpp)
 target_link_libraries(fake_dynamic_reconfigure_server ${PROJECT_NAME} ${catkin_LIBRARIES})
 
-# make sure configure headers are built before any node using them
+#make sure configure headers are built before any node using them
 #add_dependencies(dynamic_reconfigure_node ${PROJECT_NAME}_gencfg)
 

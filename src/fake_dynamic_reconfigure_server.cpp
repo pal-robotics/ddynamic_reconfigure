@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
   ROS_INFO("Spinning node");
 
   while(nh.ok()){
-
     std::cerr<<"double "<<double_test<<std::endl;
     std::cerr<<"int "<<int_test<<std::endl;
     std::cerr<<"bool "<<bool_test<<std::endl;
