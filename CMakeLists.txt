@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES capsule_tools
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp dynamic_reconfigure
 )
 
