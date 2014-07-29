@@ -31,7 +31,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
       ROS_ERROR_STREAM("Variable :"<<req.config.ints[i].name<<" not registered");
     }
   }
-  for(unsigned int i=0; i<req.config.ints.size(); ++i){
+  for(unsigned int i=0; i<req.config.bools.size(); ++i){
     if(!assignValue<bool>(registered_bool_, req.config.bools[i].name, req.config.bools[i].value)){
       ROS_ERROR_STREAM("Variable :"<<req.config.ints[i].name<<" not registered");
     }

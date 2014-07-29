@@ -6,6 +6,14 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES capsule_tools
+  CATKIN_DEPENDS roscpp dynamic_reconfigure
+)
+
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
@@ -28,3 +36,12 @@ target_link_libraries(fake_dynamic_reconfigure_server ${PROJECT_NAME} ${catkin_L
 #make sure configure headers are built before any node using them
 #add_dependencies(dynamic_reconfigure_node ${PROJECT_NAME}_gencfg)
 
+install(TARGETS ${PROJECT_NAME}
+   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
