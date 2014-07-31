@@ -5,8 +5,9 @@ bool assignValue(std::vector<std::pair<std::string, T*> > v, std::string name, T
   for(unsigned int i=0; i<v.size();++i){
     if(v[i].first == name){
       *v[i].second = value;
+     // std::cerr<<v[i].first<<" "<<value<<std::endl;
+      return true;
     }
-    return true;
   }
   return false;
 }
@@ -19,7 +20,7 @@ DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh):
 bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                             dynamic_reconfigure::Reconfigure::Response &rsp)
 {
-  ROS_INFO_STREAM("Called config callback");
+  ROS_DEBUG_STREAM("Called config callback of ddynamic_reconfigure");
 
   for(unsigned int i=0; i<req.config.ints.size(); ++i){
     if(!assignValue<int>(registered_int_, req.config.ints[i].name, req.config.ints[i].value)){
@@ -28,12 +29,12 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
   }
   for(unsigned int i=0; i<req.config.doubles.size(); ++i){
     if(!assignValue<double>(registered_double_, req.config.doubles[i].name, req.config.doubles[i].value)){
-      ROS_ERROR_STREAM("Variable :"<<req.config.ints[i].name<<" not registered");
+      ROS_ERROR_STREAM("Variable :"<<req.config.doubles[i].name<<" not registered");
     }
   }
   for(unsigned int i=0; i<req.config.bools.size(); ++i){
     if(!assignValue<bool>(registered_bool_, req.config.bools[i].name, req.config.bools[i].value)){
-      ROS_ERROR_STREAM("Variable :"<<req.config.ints[i].name<<" not registered");
+      ROS_ERROR_STREAM("Variable :"<<req.config.bools[i].name<<" not registered");
     }
   }
 
@@ -62,7 +63,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
         updateConfigInternal(new_config);
         new_config.__toMessage__(rsp.config);
        */
-  //  std::cerr<<req.config<<std::endl;
+   //std::cerr<<req.config<<std::endl;
 
   update_pub_.publish(configMessage_);
   return true;
