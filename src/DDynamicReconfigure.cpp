@@ -17,6 +17,11 @@ DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh):
 
 }
 
+void DDynamicReconfigure::updatePublishedInformation(){
+  generateConfig();
+  update_pub_.publish(configMessage_);
+}
+
 bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                             dynamic_reconfigure::Reconfigure::Response &rsp)
 {
@@ -65,7 +70,9 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
        */
    //std::cerr<<req.config<<std::endl;
 
+  generateConfig();
   update_pub_.publish(configMessage_);
+
   return true;
 }
 

@@ -21,6 +21,7 @@ public:
 
   void PublishServicesTopics();
 
+  void updatePublishedInformation();
 
   bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                               dynamic_reconfigure::Reconfigure::Response &rsp);
