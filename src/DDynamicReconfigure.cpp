@@ -136,6 +136,7 @@ void DDynamicReconfigure::generateConfigDescription(){
   configDescription_.groups.push_back(gp);
 }
 
+
 void DDynamicReconfigure::generateConfig(){
   dynamic_reconfigure::Config c;
 
@@ -165,6 +166,7 @@ void DDynamicReconfigure::generateConfig(){
     c.bools.push_back(bp);
   }
 
+  configMessage_ = c;
 }
 
 void DDynamicReconfigure::PublishServicesTopics(){
