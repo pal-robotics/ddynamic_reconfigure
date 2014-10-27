@@ -43,3 +43,5 @@ private:
   dynamic_reconfigure::Config configMessage_;
 };
 
+
+typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
