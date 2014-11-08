@@ -162,7 +162,7 @@ void DDynamicReconfigure::generateConfig(){
   for(unsigned int i=0; i<registered_bool_.size(); ++i){
     dynamic_reconfigure::BoolParameter bp;
     bp.name = registered_bool_[i].first;
-    bp.value = *registered_double_[i].second;
+    bp.value = *registered_bool_[i].second;
     c.bools.push_back(bp);
   }
 
