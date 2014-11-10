@@ -1,3 +1,6 @@
+#ifndef _DDYNAMIC_RECONFIGURE_
+#define _DDYNAMIC_RECONFIGURE_
+
 #include <dynamic_reconfigure/server.h>
 #include <ros/ros.h>
 
@@ -43,5 +46,6 @@ private:
   dynamic_reconfigure::Config configMessage_;
 };
 
-
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
+
+#endif
