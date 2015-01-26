@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2015-01-26)
+------------------
 * fix author, mantainer
 * move ddynamic reconfigure to standalone repo
 * Prepare ddynamic_reconfigure for standalone package
