@@ -9,12 +9,41 @@ class DDynamicReconfigure{
       WORKFLOW:
       
     */
+  struct RegisteredInt{
+     std::string name;
+     int *value;
+     int max_value;
+     int min_value;
+
+     RegisteredInt(){
+       max_value = 100;
+       min_value = -100;
+     }
+  };
+
+  struct RegisteredDouble{
+      std::string name;
+      double *value;
+      double max_value;
+      double min_value;
+
+      RegisteredDouble(){
+        max_value = 100;
+        min_value = -100;
+      }
+
+  };
+
 public:
   DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
 
   void RegisterVariable(int *variable, std::string id);
 
+  void RegisterVariable(int *variable, std::string id, double min, double max);
+
   void RegisterVariable(double *variable, std::string id);
+
+  void RegisterVariable(double *variable, std::string id, double min, double max);
 
   void RegisterVariable(bool *variable, std::string id);
 
@@ -38,8 +67,8 @@ private:
   bool advertized_;
 
   //Registered variables
-  std::vector< std::pair<std::string, int*> > registered_int_;
-  std::vector< std::pair<std::string, double*> > registered_double_;
+  std::vector< RegisteredInt> registered_int_;
+  std::vector< RegisteredDouble> registered_double_;
   std::vector<std::pair<std::string, bool*> > registered_bool_;
 
   dynamic_reconfigure::ConfigDescription configDescription_;
