@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2015-06-10)
+------------------
 * Added license and documentation
 * Contributors: Hilario Tome
 

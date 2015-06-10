@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>ddynamic_reconfigure</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>The ddynamic_reconfigure package</description>
 
   <maintainer email="hilario.tome@pal-robotics.com">Hilario Tome</maintainer>
