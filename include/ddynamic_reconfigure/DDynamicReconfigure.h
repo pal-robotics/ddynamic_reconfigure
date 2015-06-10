@@ -1,14 +1,25 @@
+///////////////////////////////////////////////////////////////////////////////
+
+// Copyright (C) 2014, 2015 PAL Robotics S.L.
+
+// All rights reserved.
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Author Hilario Tomé
+
 #ifndef _DDYNAMIC_RECONFIGURE_
 #define _DDYNAMIC_RECONFIGURE_
 
 #include <dynamic_reconfigure/server.h>
 #include <ros/ros.h>
 
+/**
+ * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the need to write
+ * a custom cpf file, variables are register and exposed at run time
+ */
 class DDynamicReconfigure{
-  /**
-      WORKFLOW:
-      
-    */
+
   struct RegisteredInt{
      std::string name;
      int *value;
@@ -51,6 +62,9 @@ public:
 
   void generateConfig();
 
+  /**
+   * @brief PublishServicesTopics stars the server once all the need variables are registered
+   */
   void PublishServicesTopics();
 
   void updatePublishedInformation();
