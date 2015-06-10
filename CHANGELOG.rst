@@ -2,6 +2,11 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added license and documentation
+* Contributors: Hilario Tome
+
 0.0.2 (2015-05-25)
 ------------------
 * Added min and max value specification when registering a variable
