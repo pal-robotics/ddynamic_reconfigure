@@ -199,6 +199,9 @@ void DDynamicReconfigure::RegisterVariable(int *variable, std::string id){
     p.name = id;
     p.value = variable;
     registered_int_.push_back(p);
+    if(node_handle_.hasParam(id)){
+        node_handle_.param<int>(id, *variable, 0);
+    }
 }
 
 void DDynamicReconfigure::RegisterVariable(int *variable, std::string id, double min, double max){
@@ -208,6 +211,9 @@ void DDynamicReconfigure::RegisterVariable(int *variable, std::string id, double
     p.min_value = min;
     p.max_value = max;
     registered_int_.push_back(p);
+    if(node_handle_.hasParam(id)){
+        node_handle_.param<int>(id, *variable, 0);
+    }
 }
 
 void DDynamicReconfigure::RegisterVariable(double *variable, std::string id){
@@ -215,6 +221,9 @@ void DDynamicReconfigure::RegisterVariable(double *variable, std::string id){
     p.name = id;
     p.value = variable;
     registered_double_.push_back(p);
+    if(node_handle_.hasParam(id)){
+        node_handle_.param<double>(id, *variable, 0.0);
+    }
 }
 
 void DDynamicReconfigure::RegisterVariable(double *variable, std::string id, double min, double max){
@@ -224,10 +233,16 @@ void DDynamicReconfigure::RegisterVariable(double *variable, std::string id, dou
     p.min_value = min;
     p.max_value = max;
     registered_double_.push_back(p);
+    if(node_handle_.hasParam(id)){
+        node_handle_.param<double>(id, *variable, 0.0);
+    }
 }
 
 void DDynamicReconfigure::RegisterVariable(bool *variable, std::string id){
     std::pair<std::string, bool*> p(id, variable);
     registered_bool_.push_back(p);
+    if(node_handle_.hasParam(id)){
+        node_handle_.param<bool>(id, *variable, false);
+    }
 }
 
