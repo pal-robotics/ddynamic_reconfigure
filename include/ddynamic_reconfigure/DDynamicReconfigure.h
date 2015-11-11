@@ -48,6 +48,8 @@ class DDynamicReconfigure{
 public:
   DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
 
+  virtual ~DDynamicReconfigure();
+
   void RegisterVariable(int *variable, std::string id);
 
   void RegisterVariable(int *variable, std::string id, double min, double max);

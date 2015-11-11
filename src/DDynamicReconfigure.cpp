@@ -27,6 +27,12 @@ DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh):
 
 }
 
+DDynamicReconfigure::~DDynamicReconfigure(){
+  set_service_.shutdown();
+  update_pub_.shutdown();
+  descr_pub_.shutdown();
+}
+
 void DDynamicReconfigure::updatePublishedInformation(){
     generateConfig();
     update_pub_.publish(configMessage_);
