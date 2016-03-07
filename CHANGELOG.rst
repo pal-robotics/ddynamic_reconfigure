@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.4 (2016-03-07)
+------------------
 * Added destructor, fixed bug
 * Added to dynamic reconfigure to parse from param server the initial value if it is availlable
 * Contributors: Hilario Tome
