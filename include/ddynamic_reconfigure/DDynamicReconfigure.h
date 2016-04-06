@@ -14,6 +14,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <ros/ros.h>
 
+
 /**
  * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the need to write
  * a custom cpf file, variables are register and exposed at run time
@@ -100,5 +101,11 @@ private:
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
+
+// Hack until this is moved to pal namespace
+namespace pal
+{
+    typedef ::DDynamicReconfigure DDynamicReconfigure;
+}
 
 #endif
