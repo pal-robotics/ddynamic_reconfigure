@@ -17,4 +17,6 @@
   <depend>dynamic_reconfigure</depend>
   <depend>roscpp</depend>
 
+  <test_depend>rostest</test_depend>
+  <test_depend>gmock</test_depend>
 </package>

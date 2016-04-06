@@ -74,6 +74,13 @@ public:
   bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                               dynamic_reconfigure::Reconfigure::Response &rsp);
 
+  /**
+   * @brief setUserCallback Set a function to be called when parameters have changed
+   */
+  typedef boost::function<void()> UserCallbackType;
+  void setUserCallback(const UserCallbackType &callback);
+  void clearUserCallback();
+
 private:
   ros::NodeHandle node_handle_;
   ros::ServiceServer set_service_;
@@ -89,6 +96,7 @@ private:
 
   dynamic_reconfigure::ConfigDescription configDescription_;
   dynamic_reconfigure::Config configMessage_;
+  UserCallbackType user_callback_;
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
