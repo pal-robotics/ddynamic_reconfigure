@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>ddynamic_reconfigure</name>
   <version>0.0.4</version>
   <description>The ddynamic_reconfigure package</description>
@@ -14,11 +14,9 @@
   <author email="hilario.tome@pal-robotics.com">Hilario Tome</author> -->
 
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>dynamic_reconfigure</build_depend>
-  <build_depend>roscpp</build_depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>roscpp</depend>
 
-  <run_depend>dynamic_reconfigure</run_depend>
-  <run_depend>roscpp</run_depend>
-
-
+  <test_depend>rostest</test_depend>
+  <test_depend>gmock</test_depend>
 </package>

@@ -86,10 +86,35 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
        */
     //std::cerr<<req.config<<std::endl;
 
+    if (user_callback_)
+    {
+      try
+      {
+        user_callback_();
+      }
+      catch (std::exception &e)
+      {
+        ROS_WARN("Reconfigure callback failed with exception %s: ", e.what());
+      }
+      catch (...)
+      {
+        ROS_WARN("Reconfigure callback failed with unprintable exception.");
+      }
+    }
     generateConfig();
     update_pub_.publish(configMessage_);
 
     return true;
+}
+
+void DDynamicReconfigure::setUserCallback(const DDynamicReconfigure::UserCallbackType &callback)
+{
+  user_callback_ = callback;
+}
+
+void DDynamicReconfigure::clearUserCallback()
+{
+  user_callback_.clear();
 }
 
 void DDynamicReconfigure::generateConfigDescription(){

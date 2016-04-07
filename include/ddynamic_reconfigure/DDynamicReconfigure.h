@@ -14,6 +14,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <ros/ros.h>
 
+
 /**
  * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the need to write
  * a custom cpf file, variables are register and exposed at run time
@@ -74,6 +75,13 @@ public:
   bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                               dynamic_reconfigure::Reconfigure::Response &rsp);
 
+  /**
+   * @brief setUserCallback Set a function to be called when parameters have changed
+   */
+  typedef boost::function<void()> UserCallbackType;
+  void setUserCallback(const UserCallbackType &callback);
+  void clearUserCallback();
+
 private:
   ros::NodeHandle node_handle_;
   ros::ServiceServer set_service_;
@@ -89,8 +97,15 @@ private:
 
   dynamic_reconfigure::ConfigDescription configDescription_;
   dynamic_reconfigure::Config configMessage_;
+  UserCallbackType user_callback_;
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
+
+// Hack until this is moved to pal namespace
+namespace pal
+{
+    typedef ::DDynamicReconfigure DDynamicReconfigure;
+}
 
 #endif
