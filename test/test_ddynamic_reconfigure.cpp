@@ -28,7 +28,7 @@ TEST(DDynamicReconfigureTest, basicTest)
   DDynamicReconfigure dd(nh);
   MockClass mock;
   mock.int_param_ = 0;
-  dd.RegisterVariable(&mock.int_param_, "int_param", 0, 100);
+  dd.RegisterVariable(&mock.int_param_, "int_param", -10000, 10000);
 
   dd.PublishServicesTopics();
   ros::AsyncSpinner spinner(1);
@@ -53,6 +53,7 @@ TEST(DDynamicReconfigureTest, callbackTest)
   mock.bool_param_ = false;
   dd.RegisterVariable(&mock.int_param_, "int_param", 0, 100);
   dd.RegisterVariable(&mock.bool_param_, "bool_param");
+  dd.RegisterVariable(&mock.double_param_, "double_param", -50, 50);
   dd.setUserCallback(boost::bind(&MockClass::userCallback, &mock));
   dd.PublishServicesTopics();
   ros::AsyncSpinner spinner(1);
@@ -65,16 +66,26 @@ TEST(DDynamicReconfigureTest, callbackTest)
   dynamic_reconfigure::Reconfigure srv;
   dynamic_reconfigure::IntParameter int_param;
   int_param.name = "int_param";
-  int_param.value = 1234;
+  int_param.value = -1234;
+  srv.request.config.ints.push_back(int_param);
 
   dynamic_reconfigure::BoolParameter bool_param;
   bool_param.name = "bool_param";
   bool_param.value = true;
-
   srv.request.config.bools.push_back(bool_param);
+
+  dynamic_reconfigure::DoubleParameter double_param;
+  double_param.name = "double_param";
+  double_param.value = 42.4242;
+  srv.request.config.doubles.push_back(double_param);
+
+  EXPECT_NE(mock.int_param_, int_param.value);
   EXPECT_FALSE(mock.bool_param_);
+  EXPECT_NE(mock.double_param_, double_param.value);
   EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
   EXPECT_TRUE(mock.bool_param_);
+  EXPECT_EQ(mock.int_param_, int_param.value);
+  EXPECT_NEAR(mock.double_param_, double_param.value, 0.0001);
 }
 
 
