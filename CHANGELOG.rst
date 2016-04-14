@@ -2,6 +2,18 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'user-callback' into 'dubnium-devel'
+  User callback
+  Remember that we have to re release everyone who depends on this since it breaks API.
+  See merge request !1
+* Add test for double param
+* Add hack to have namespaced DdynamicReconfigure, for easier migration
+* Add user callback and unit tests
+* Migrate package to format 2
+* Contributors: Hilario Tome, Victor Lopez
+
 0.0.4 (2016-03-07)
 ------------------
 * Added destructor, fixed bug
