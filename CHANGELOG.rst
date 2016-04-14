@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.5 (2016-04-14)
+------------------
 * Merge branch 'user-callback' into 'dubnium-devel'
   User callback
   Remember that we have to re release everyone who depends on this since it breaks API.
