@@ -47,6 +47,7 @@ class DDynamicReconfigure{
   };
 
 public:
+
   DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
 
   virtual ~DDynamicReconfigure();
