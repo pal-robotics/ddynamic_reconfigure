@@ -103,6 +103,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
     }
     generateConfig();
     update_pub_.publish(configMessage_);
+    rsp.config = configMessage_;
 
     return true;
 }
