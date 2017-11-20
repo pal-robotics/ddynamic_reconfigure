@@ -62,10 +62,6 @@ public:
 
   void RegisterVariable(bool *variable, std::string id);
 
-  void generateConfigDescription();
-
-  void generateConfig();
-
   /**
    * @brief PublishServicesTopics stars the server once all the need variables are registered
    */
@@ -73,17 +69,24 @@ public:
 
   void updatePublishedInformation();
 
+  typedef boost::function<void()> UserCallbackType;
+  void setUserCallback(const UserCallbackType &callback);
+
+  void clearUserCallback();
+
+private:
+
+  void generateConfigDescription();
+
+  void generateConfig();
+
   bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                               dynamic_reconfigure::Reconfigure::Response &rsp);
 
   /**
    * @brief setUserCallback Set a function to be called when parameters have changed
    */
-  typedef boost::function<void()> UserCallbackType;
-  void setUserCallback(const UserCallbackType &callback);
-  void clearUserCallback();
 
-private:
   ros::NodeHandle node_handle_;
   ros::ServiceServer set_service_;
   ros::Publisher update_pub_;
