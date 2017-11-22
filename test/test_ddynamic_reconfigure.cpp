@@ -1,4 +1,4 @@
-#include <ddynamic_reconfigure/DDynamicReconfigure.h>
+#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <dynamic_reconfigure/Reconfigure.h>
@@ -7,6 +7,7 @@ using ::testing::_;
 using ::testing::Mock;
 using ::testing::Exactly;
 
+using namespace ddynamic_reconfigure;
 
 namespace  pal
 {

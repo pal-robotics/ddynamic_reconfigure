@@ -14,40 +14,44 @@
 #include <dynamic_reconfigure/server.h>
 #include <ros/ros.h>
 
-
+namespace ddynamic_reconfigure
+{
 /**
- * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the need to write
+ * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the
+ * need to write
  * a custom cpf file, variables are register and exposed at run time
  */
-class DDynamicReconfigure{
+class DDynamicReconfigure
+{
+  struct RegisteredInt
+  {
+    std::string name;
+    int *value;
+    int max_value;
+    int min_value;
 
-  struct RegisteredInt{
-     std::string name;
-     int *value;
-     int max_value;
-     int min_value;
-
-     RegisteredInt(){
-       max_value = 100;
-       min_value = -100;
-     }
+    RegisteredInt()
+    {
+      max_value = 100;
+      min_value = -100;
+    }
   };
 
-  struct RegisteredDouble{
-      std::string name;
-      double *value;
-      double max_value;
-      double min_value;
+  struct RegisteredDouble
+  {
+    std::string name;
+    double *value;
+    double max_value;
+    double min_value;
 
-      RegisteredDouble(){
-        max_value = 100;
-        min_value = -100;
-      }
-
+    RegisteredDouble()
+    {
+      max_value = 100;
+      min_value = -100;
+    }
   };
 
 public:
-
   DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
 
   virtual ~DDynamicReconfigure();
@@ -63,7 +67,8 @@ public:
   void RegisterVariable(bool *variable, std::string id);
 
   /**
-   * @brief PublishServicesTopics stars the server once all the need variables are registered
+   * @brief PublishServicesTopics stars the server once all the need variables are
+   * registered
    */
   void PublishServicesTopics();
 
@@ -75,13 +80,12 @@ public:
   void clearUserCallback();
 
 private:
-
   void generateConfigDescription();
 
   void generateConfig();
 
   bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
-                                              dynamic_reconfigure::Reconfigure::Response &rsp);
+                         dynamic_reconfigure::Reconfigure::Response &rsp);
 
   /**
    * @brief setUserCallback Set a function to be called when parameters have changed
@@ -94,10 +98,10 @@ private:
 
   bool advertized_;
 
-  //Registered variables
-  std::vector< RegisteredInt> registered_int_;
-  std::vector< RegisteredDouble> registered_double_;
-  std::vector<std::pair<std::string, bool*> > registered_bool_;
+  // Registered variables
+  std::vector<RegisteredInt> registered_int_;
+  std::vector<RegisteredDouble> registered_double_;
+  std::vector<std::pair<std::string, bool *> > registered_bool_;
 
   dynamic_reconfigure::ConfigDescription configDescription_;
   dynamic_reconfigure::Config configMessage_;
@@ -106,10 +110,11 @@ private:
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
 
-// Hack until this is moved to pal namespace
-namespace pal
-{
-    typedef ::DDynamicReconfigure DDynamicReconfigure;
+//// Hack until this is moved to pal namespace
+// namespace pal
+//{
+// typedef ::ddynamic_reconfigure::DDynamicReconfigure DDynamicReconfigure;
+//}
 }
 
 #endif

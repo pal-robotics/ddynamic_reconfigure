@@ -19,13 +19,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-#add dynamic reconfigure api
-#find_package(catkin REQUIRED dynamic_reconfigure)
-#generate_dynamic_reconfigure_options(
-#  cfg/Tutorials.cfg
-#)
-
-add_library(${PROJECT_NAME} src/DDynamicReconfigure.cpp)
+add_library(${PROJECT_NAME} src/ddynamic_reconfigure.cpp)
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 #add_executable(dynamic_reconfigure_node src/dynamic_reconfigure_node.cpp)
 #target_link_libraries(dynamic_reconfigure_node ${catkin_LIBRARIES})
