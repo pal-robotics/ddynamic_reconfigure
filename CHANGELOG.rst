@@ -2,6 +2,15 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* formating
+* made private unnecesary functions
+* Merge branch 'dubnium-devel' of gitlab:control/ddynamic_reconfigure into dubnium-devel
+* Formating
+* Add new file
+* Contributors: Hilario Tome
+
 0.0.5 (2016-04-14)
 ------------------
 * Merge branch 'user-callback' into 'dubnium-devel'
