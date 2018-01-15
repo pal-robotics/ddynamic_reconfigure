@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2018-01-15)
+------------------
 * formating
 * made private unnecesary functions
 * Merge branch 'dubnium-devel' of gitlab:control/ddynamic_reconfigure into dubnium-devel
