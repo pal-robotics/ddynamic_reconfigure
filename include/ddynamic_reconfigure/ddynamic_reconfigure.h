@@ -3,5 +3,6 @@
 
 namespace ddynamic_reconfigure
 {
+    typedef ::DDynamicReconfigurePtr DDynamicReconfigurePtr;
     typedef ::DDynamicReconfigure DDynamicReconfigure;
 }
