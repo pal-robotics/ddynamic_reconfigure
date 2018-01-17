@@ -2,6 +2,14 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'ddynamic_ptr_fixed' into 'dubnium-devel'
+  Added the ptr link to the DDynamic_ReconfigurePtr
+  See merge request control/ddynamic_reconfigure!4
+* Added the ptr link to the DDynamic_ReconfigurePtr
+* Contributors: AleDF, Victor Lopez
+
 0.0.6 (2018-01-17)
 ------------------
 * Add header to add compatibility with new version
