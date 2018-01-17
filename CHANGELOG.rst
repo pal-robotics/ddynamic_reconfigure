@@ -2,6 +2,11 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add header to add compatibility with new version
+* Contributors: Victor Lopez
+
 0.0.5 (2016-04-14)
 ------------------
 * Merge branch 'user-callback' into 'dubnium-devel'
