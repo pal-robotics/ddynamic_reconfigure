@@ -50,8 +50,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
-    add_rostest_gtest(ddynamic_reconfigure-test test/ddynamic_reconfigure.test test/test_ddynamic_reconfigure.cpp)
+    add_rostest_gmock(ddynamic_reconfigure-test test/ddynamic_reconfigure.test test/test_ddynamic_reconfigure.cpp)
     target_link_libraries(ddynamic_reconfigure-test
-                                ${PROJECT_NAME}
-                                gmock)
+                                ${PROJECT_NAME})
 endif(CATKIN_ENABLE_TESTING)
