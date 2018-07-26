@@ -1,5 +1,4 @@
 #include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <dynamic_reconfigure/Reconfigure.h>
 
@@ -14,6 +13,9 @@ namespace  pal
 class MockClass
 {
 public:
+  MockClass()
+    : double_param_(0.0), int_param_(0), bool_param_(false)
+  {}
   MOCK_METHOD0(userCallback,
                void());
 
@@ -97,7 +99,7 @@ int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
   ros::init(argc, argv, "ddynamic_reconfigure_test");
-
+  ros::NodeHandle nh;
 
   ::testing::InitGoogleMock(&argc, argv);
 
