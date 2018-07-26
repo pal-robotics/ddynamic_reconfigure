@@ -2,6 +2,18 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'fix-test-crash' into 'erbium-devel'
+  Fix test crash
+  See merge request control/ddynamic_reconfigure!6
+* Fix uninitialized variables
+* Use gmock properly
+* fixed merge request
+* fixed merge
+* Fix service response
+* Contributors: Hilario Tome, Victor Lopez
+
 0.1.0 (2018-01-15)
 ------------------
 * formating
