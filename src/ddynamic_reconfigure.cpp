@@ -30,9 +30,20 @@ bool assignValue(std::vector<T> v, std::string name, V value)
   return false;
 }
 
-DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh)
+DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh, bool spin_thread)
   : node_handle_(nh), advertized_(false)
 {
+  if (spin_thread)
+  {
+    queued_nh_.setCallbackQueue(&queue_);
+    spinner_.reset(new ros::AsyncSpinner(1, &queue_));
+    spinner_->start();
+  }
+  else
+  {
+    queued_nh_ = nh;
+  }
+  pub_config_timer_ = queued_nh_.createTimer(ros::Duration(1.0), boost::bind(&DDynamicReconfigure::updatePublishedInformation, this)) ;
 }
 
 DDynamicReconfigure::~DDynamicReconfigure()
@@ -44,8 +55,8 @@ DDynamicReconfigure::~DDynamicReconfigure()
 
 void DDynamicReconfigure::updatePublishedInformation()
 {
-  generateConfig();
-  update_pub_.publish(configMessage_);
+  dynamic_reconfigure::Config config_msg = generateConfig();
+  update_pub_.publish(config_msg);
 }
 
 bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
@@ -117,9 +128,10 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
       ROS_WARN("Reconfigure callback failed with unprintable exception.");
     }
   }
-  generateConfig();
-  update_pub_.publish(configMessage_);
-  rsp.config = configMessage_;
+  
+  dynamic_reconfigure::Config config_msg = generateConfig();
+  update_pub_.publish(config_msg);
+  rsp.config = config_msg;
 
   return true;
 }
@@ -199,7 +211,7 @@ void DDynamicReconfigure::generateConfigDescription()
 }
 
 
-void DDynamicReconfigure::generateConfig()
+dynamic_reconfigure::Config DDynamicReconfigure::generateConfig()
 {
   dynamic_reconfigure::Config c;
 
@@ -232,7 +244,7 @@ void DDynamicReconfigure::generateConfig()
     c.bools.push_back(bp);
   }
 
-  configMessage_ = c;
+  return c;
 }
 
 void DDynamicReconfigure::PublishServicesTopics()
@@ -247,8 +259,8 @@ void DDynamicReconfigure::PublishServicesTopics()
 
   update_pub_ =
       node_handle_.advertise<dynamic_reconfigure::Config>("parameter_updates", 1, true);
-  generateConfig();
-  update_pub_.publish(configMessage_);
+
+  update_pub_.publish(generateConfig());
 
   advertized_ = true;
 }
