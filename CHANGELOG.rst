@@ -2,6 +2,14 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'add-auto-publish' into 'erbium-devel'
+  Add auto publish of updates values to ddynamic_reconfigure
+  See merge request control/ddynamic_reconfigure!7
+* Add auto publish of updates values to ddynamic_reconfigure
+* Contributors: Hilario Tome, Victor Lopez
+
 0.1.1 (2018-07-26)
 ------------------
 * Merge branch 'fix-test-crash' into 'erbium-devel'
