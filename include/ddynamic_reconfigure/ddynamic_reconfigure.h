@@ -13,6 +13,8 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <ros/ros.h>
+#include <ros/callback_queue.h>
+#include <ros/spinner.h>
 
 namespace ddynamic_reconfigure
 {
@@ -52,7 +54,14 @@ class DDynamicReconfigure
   };
 
 public:
-  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
+  /**
+   * @param spin_thread will spin a ROS thread for publishing updates to the parameters.
+   * If false it will use the global callback queue.
+   * 
+   * If you have a global ros::spin(), it's better to set it to false.
+   */
+  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"),
+                      bool spin_thread=true);
 
   virtual ~DDynamicReconfigure();
 
@@ -82,7 +91,7 @@ public:
 private:
   void generateConfigDescription();
 
-  void generateConfig();
+  dynamic_reconfigure::Config generateConfig();
 
   bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                          dynamic_reconfigure::Reconfigure::Response &rsp);
@@ -104,8 +113,15 @@ private:
   std::vector<std::pair<std::string, bool *> > registered_bool_;
 
   dynamic_reconfigure::ConfigDescription configDescription_;
-  dynamic_reconfigure::Config configMessage_;
+  
   UserCallbackType user_callback_;
+  
+  
+  ros::NodeHandle queued_nh_;
+  ros::CallbackQueue queue_;
+  ros::Timer pub_config_timer_;
+  //Shared ptr because it's optional and it has a restricting constructor
+  boost::shared_ptr<ros::AsyncSpinner> spinner_;
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;

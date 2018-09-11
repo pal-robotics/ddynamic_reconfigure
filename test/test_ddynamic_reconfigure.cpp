@@ -91,7 +91,27 @@ TEST(DDynamicReconfigureTest, callbackTest)
   EXPECT_NEAR(mock.double_param_, double_param.value, 0.0001);
 }
 
+TEST(DDynamicReconfigureTest, threadTest)
+{
+  ros::NodeHandle nh("foo");
+  DDynamicReconfigure dd(nh);
+  int param = 0;
+  dd.RegisterVariable(&param, "int_param", 0, 100);
+  dd.PublishServicesTopics();
+  dynamic_reconfigure::ConfigConstPtr cfg_msg =
+      ros::topic::waitForMessage<dynamic_reconfigure::Config>("/foo/parameter_updates");
 
+  ASSERT_EQ(1, cfg_msg->ints.size());
+  ASSERT_EQ("int_param", cfg_msg->ints[0].name);
+  ASSERT_EQ(param, cfg_msg->ints[0].value);
+
+  param = 5;
+  ros::Duration(1.0).sleep();
+  cfg_msg = ros::topic::waitForMessage<dynamic_reconfigure::Config>("/foo/parameter_updates");
+  ASSERT_EQ(1, cfg_msg->ints.size());
+  ASSERT_EQ("int_param", cfg_msg->ints[0].name);
+  ASSERT_EQ(param, cfg_msg->ints[0].value);
+}
 }
 
 
