@@ -30,20 +30,10 @@ bool assignValue(std::vector<T> v, std::string name, V value)
   return false;
 }
 
-DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh, bool spin_thread)
+DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh)
   : node_handle_(nh), advertized_(false)
 {
-  if (spin_thread)
-  {
-    queued_nh_.setCallbackQueue(&queue_);
-    spinner_.reset(new ros::AsyncSpinner(1, &queue_));
-    spinner_->start();
-  }
-  else
-  {
-    queued_nh_ = nh;
-  }
-  pub_config_timer_ = queued_nh_.createTimer(ros::Duration(10.0), boost::bind(&DDynamicReconfigure::updatePublishedInformation, this)) ;
+  pub_config_timer_ = nh.createTimer(ros::Duration(5.0), boost::bind(&DDynamicReconfigure::updatePublishedInformation, this)) ;
 }
 
 DDynamicReconfigure::~DDynamicReconfigure()
@@ -53,10 +43,37 @@ DDynamicReconfigure::~DDynamicReconfigure()
   descr_pub_.shutdown();
 }
 
+template <typename ParamType>
+bool confCompare(const ParamType &a, const ParamType &b)
+{
+  return (a.name == b.name) && (a.value == b.value);
+}
+
 void DDynamicReconfigure::updatePublishedInformation()
 {
   dynamic_reconfigure::Config config_msg = generateConfig();
-  update_pub_.publish(config_msg);
+
+  bool has_changed = false;
+  has_changed = has_changed || config_msg.ints.size() != last_config_.ints.size();
+  has_changed = has_changed || config_msg.doubles.size() != last_config_.doubles.size();
+  has_changed = has_changed || config_msg.bools.size() != last_config_.bools.size();
+  
+  has_changed = has_changed || !std::equal(config_msg.ints.begin(), config_msg.ints.end(),
+                             last_config_.ints.begin(),
+                             confCompare<dynamic_reconfigure::IntParameter>);
+  has_changed = has_changed || !std::equal(config_msg.doubles.begin(), config_msg.doubles.end(),
+                            last_config_.doubles.begin(),
+                            confCompare<dynamic_reconfigure::DoubleParameter>);
+  has_changed = has_changed || !std::equal(config_msg.bools.begin(), config_msg.bools.end(),
+                             last_config_.bools.begin(),
+                             confCompare<dynamic_reconfigure::BoolParameter>);
+
+  if (has_changed)
+  {
+    last_config_ = config_msg;
+    ROS_INFO_STREAM("Publishing");
+    update_pub_.publish(config_msg);
+  }
 }
 
 bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
@@ -132,7 +149,8 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
   dynamic_reconfigure::Config config_msg = generateConfig();
   update_pub_.publish(config_msg);
   rsp.config = config_msg;
-
+  
+  pub_config_timer_.setPeriod(ros::Duration(5.0));
   return true;
 }
 
