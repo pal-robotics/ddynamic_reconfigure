@@ -43,7 +43,7 @@ DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh, bool spin_th
   {
     queued_nh_ = nh;
   }
-  pub_config_timer_ = queued_nh_.createTimer(ros::Duration(1.0), boost::bind(&DDynamicReconfigure::updatePublishedInformation, this)) ;
+  pub_config_timer_ = queued_nh_.createTimer(ros::Duration(10.0), boost::bind(&DDynamicReconfigure::updatePublishedInformation, this)) ;
 }
 
 DDynamicReconfigure::~DDynamicReconfigure()
@@ -128,7 +128,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
       ROS_WARN("Reconfigure callback failed with unprintable exception.");
     }
   }
-  
+
   dynamic_reconfigure::Config config_msg = generateConfig();
   update_pub_.publish(config_msg);
   rsp.config = config_msg;
