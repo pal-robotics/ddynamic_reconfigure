@@ -60,8 +60,7 @@ public:
    * 
    * If you have a global ros::spin(), it's better to set it to false.
    */
-  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"),
-                      bool spin_thread=true);
+  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
 
   virtual ~DDynamicReconfigure();
 
@@ -116,12 +115,8 @@ private:
   
   UserCallbackType user_callback_;
   
-  
-  ros::NodeHandle queued_nh_;
-  ros::CallbackQueue queue_;
   ros::Timer pub_config_timer_;
-  //Shared ptr because it's optional and it has a restricting constructor
-  boost::shared_ptr<ros::AsyncSpinner> spinner_;
+  dynamic_reconfigure::Config last_config_;
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
