@@ -2,6 +2,14 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'fix-spammy' into 'erbium-devel'
+  Only publish when variables has changed
+  See merge request control/ddynamic_reconfigure!8
+* Only publish when variables has changed
+* Contributors: Hilario Tome, Victor Lopez
+
 0.1.3 (2018-09-14)
 ------------------
 * Reduce update frequency to 10second
