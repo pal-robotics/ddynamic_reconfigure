@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.4 (2018-09-17)
+------------------
 * Merge branch 'fix-spammy' into 'erbium-devel'
   Only publish when variables has changed
   See merge request control/ddynamic_reconfigure!8
