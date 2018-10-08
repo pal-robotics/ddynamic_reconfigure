@@ -25,7 +25,26 @@ public:
 };
 
 
-TEST(DDynamicReconfigureTest, basicTest)
+class DDynamicReconfigureTest : public ::testing::Test
+{
+public:
+  void cfgCb(const dynamic_reconfigure::ConfigConstPtr& msg)
+  {
+    cfg_msg_ = msg;
+  }
+
+  void waitForCfg()
+  {
+    cfg_msg_.reset();
+    while (!cfg_msg_.get() && ros::ok())
+    {
+    }
+  }
+
+  dynamic_reconfigure::ConfigConstPtr cfg_msg_;
+};
+
+TEST_F(DDynamicReconfigureTest, basicTest)
 {
   ros::NodeHandle nh("~");
   DDynamicReconfigure dd(nh);
@@ -47,7 +66,7 @@ TEST(DDynamicReconfigureTest, basicTest)
   EXPECT_EQ(mock.int_param_, int_param.value);
 }
 
-TEST(DDynamicReconfigureTest, callbackTest)
+TEST_F(DDynamicReconfigureTest, callbackTest)
 {
   ros::NodeHandle nh("~");
   DDynamicReconfigure dd(nh);
@@ -91,26 +110,31 @@ TEST(DDynamicReconfigureTest, callbackTest)
   EXPECT_NEAR(mock.double_param_, double_param.value, 0.0001);
 }
 
-TEST(DDynamicReconfigureTest, threadTest)
+TEST_F(DDynamicReconfigureTest, threadTest)
 {
   ros::NodeHandle nh("foo");
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
   DDynamicReconfigure dd(nh);
   int param = 0;
   dd.RegisterVariable(&param, "int_param", 0, 100);
   dd.PublishServicesTopics();
-  dynamic_reconfigure::ConfigConstPtr cfg_msg =
-      ros::topic::waitForMessage<dynamic_reconfigure::Config>("/foo/parameter_updates");
+  
+  ros::Subscriber sub =
+      nh.subscribe<dynamic_reconfigure::Config>("/foo/parameter_updates", 1, boost::bind(&DDynamicReconfigureTest::cfgCb, this, _1));
 
-  ASSERT_EQ(1, cfg_msg->ints.size());
-  ASSERT_EQ("int_param", cfg_msg->ints[0].name);
-  ASSERT_EQ(param, cfg_msg->ints[0].value);
+  waitForCfg();
+
+  ASSERT_EQ(1, cfg_msg_->ints.size());
+  ASSERT_EQ("int_param", cfg_msg_->ints[0].name);
+  ASSERT_EQ(param, cfg_msg_->ints[0].value);
 
   param = 5;
-  ros::Duration(1.0).sleep();
-  cfg_msg = ros::topic::waitForMessage<dynamic_reconfigure::Config>("/foo/parameter_updates");
-  ASSERT_EQ(1, cfg_msg->ints.size());
-  ASSERT_EQ("int_param", cfg_msg->ints[0].name);
-  ASSERT_EQ(param, cfg_msg->ints[0].value);
+  
+  waitForCfg();
+  ASSERT_EQ(1, cfg_msg_->ints.size());
+  ASSERT_EQ("int_param", cfg_msg_->ints[0].name);
+  ASSERT_EQ(param, cfg_msg_->ints[0].value);
 }
 }
 
