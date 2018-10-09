@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.5 (2018-10-09)
+------------------
 * Merge branch 'fix-test' into 'erbium-devel'
   Fix test
   See merge request control/ddynamic_reconfigure!9
