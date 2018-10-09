@@ -55,11 +55,8 @@ class DDynamicReconfigure
 
 public:
   /**
-   * @param spin_thread will spin a ROS thread for publishing updates to the parameters.
-   * If false it will use the global callback queue.
-   * 
-   * If you have a global ros::spin(), it's better to set it to false.
-   */
+    * @param nh the queue associated to this nh should spined() somewhere else
+    */
   DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
 
   virtual ~DDynamicReconfigure();
