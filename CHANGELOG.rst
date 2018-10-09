@@ -2,6 +2,15 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'fix-test' into 'erbium-devel'
+  Fix test
+  See merge request control/ddynamic_reconfigure!9
+* Fix comment regarding spin_thread
+* Fix failing test due to removal of spin_thread
+* Contributors: Victor Lopez
+
 0.1.4 (2018-09-17)
 ------------------
 * Merge branch 'fix-spammy' into 'erbium-devel'
