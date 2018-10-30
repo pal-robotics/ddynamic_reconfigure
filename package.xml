@@ -7,7 +7,7 @@
   <maintainer email="hilario.tome@pal-robotics.com">Hilario Tome</maintainer>
   <maintainer email="luca.marchionni@pal-robotics.com">Luca Marchionni</maintainer>
 
-  <license>Proprietary</license>
+  <license>BSD</license>
 
   <!-- <url type="website">http://wiki.ros.org/ddynamic_reconfigure</url> -->
 
