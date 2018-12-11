@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.6 (2018-12-11)
+------------------
 * Merge branch 'ddr_debug_msg' into 'erbium-devel'
   changed info msg to debug
   See merge request control/ddynamic_reconfigure!10
