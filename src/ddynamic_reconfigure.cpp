@@ -71,7 +71,7 @@ void DDynamicReconfigure::updatePublishedInformation()
   if (has_changed)
   {
     last_config_ = config_msg;
-    ROS_INFO_STREAM("Publishing");
+    ROS_DEBUG_STREAM("Publishing ddr");
     update_pub_.publish(config_msg);
   }
 }
