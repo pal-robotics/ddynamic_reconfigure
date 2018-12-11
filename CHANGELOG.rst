@@ -2,6 +2,16 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'ddr_debug_msg' into 'erbium-devel'
+  changed info msg to debug
+  See merge request control/ddynamic_reconfigure!10
+* changed info msg to debug
+* Change license to BSD
+* Remove internal build system link
+* Contributors: Hilario Tome, Victor Lopez
+
 0.1.5 (2018-10-09)
 ------------------
 * Merge branch 'fix-test' into 'erbium-devel'
