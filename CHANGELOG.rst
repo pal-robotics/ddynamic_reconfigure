@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.7 (2019-03-20)
+------------------
 * Merge branch 'fix-gmock-dependency' into 'erbium-devel'
   Rename gmock dependency for public release
   See merge request control/ddynamic_reconfigure!11
