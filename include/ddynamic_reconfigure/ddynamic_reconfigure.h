@@ -12,12 +12,14 @@
 #define _DDYNAMIC_RECONFIGURE_
 
 #include <dynamic_reconfigure/server.h>
+#include <ddynamic_reconfigure/registered_param.h>
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/spinner.h>
 
 namespace ddynamic_reconfigure
 {
+
 /**
  * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the
  * need to write
@@ -26,76 +28,6 @@ namespace ddynamic_reconfigure
  */
 class DDynamicReconfigure
 {
-  template <typename T>
-  class RegisteredParam
-  {
-  public:
-    RegisteredParam(const std::string &name, const std::string &description,
-                    T min_value, T max_value)
-      : name_(name), description_(description), min_value_(min_value), max_value_(max_value)
-    {
-    }
-    
-    virtual T getCurrentValue() const = 0;
-    virtual void updateValue(T new_value) = 0;
-    
-    
-    const std::string name_;
-    const std::string description_;
-    const T min_value_;
-    const T max_value_;
-  };
-  
-  template <typename T>
-  class PointerRegisteredParam : public RegisteredParam<T>
-  {
-  public:
-    PointerRegisteredParam(const std::string &name, const std::string &description,
-                            T min_value, T max_value, T *variable)
-      : RegisteredParam<T>(name, description, min_value, max_value), variable_(variable)
-    {      
-    }
-    
-    virtual T getCurrentValue() const override
-    {
-      return *variable_;
-    }
-    virtual void updateValue(T new_value) override
-    {
-      *variable_ = new_value;
-    }
-    
-  protected:
-    T *variable_;
-  };
-  
-  template <typename T>
-  class CallbackRegisteredParam : public RegisteredParam<T>
-  {
-  public:
-    CallbackRegisteredParam(const std::string &name, const std::string &description,
-                            T min_value, T max_value, T current_value,
-                            boost::function<void(T value)> callback)
-      : RegisteredParam<T>(name, description, min_value, max_value)
-      , current_value_(current_value)
-      , callback_(callback)
-    {      
-    }
-    
-    virtual T getCurrentValue() const override
-    {
-      return current_value_;
-    }
-    virtual void updateValue(T new_value) override
-    {
-      callback_(new_value);
-      current_value_ = new_value;
-    }
-    
-    T current_value_;
-    boost::function<void(T value)> callback_;
-  };
-
 public:
   /**
     * @param nh the queue associated to this nh should spined() somewhere else
@@ -119,6 +51,17 @@ public:
   void registerVariable(const std::string &name, bool *variable,
                         const std::string &description = "");
 
+
+  void registerEnumVariable(const std::string &name, int *variable,
+                            const std::string &description = "",
+                            std::map<std::string, int> enum_dict = {},
+                            const std::string &enum_description = "");
+  void registerEnumVariable(const std::string &name, double *variable,
+                            const std::string &description = "",
+                            std::map<std::string, double> enum_dict = {},
+                            const std::string &enum_description = "");
+
+
   /**
    * @brief registerVariable register a variable to be modified via the
    * dynamic_reconfigure API. When a change is made, the callback will be called with the
@@ -135,6 +78,17 @@ public:
                         const boost::function<void(bool value)> &callback,
                         const std::string &description = "");
 
+  void registerEnumVariable(const std::string &name, int current_value,
+                            const boost::function<void(int)> &callback,
+                            const std::string &description,
+                            std::map<std::string, int> enum_dict = {},
+                            const std::string &enum_description = "");
+
+  void registerEnumVariable(const std::string &name, double current_value,
+                            const boost::function<void(double)> &callback,
+                            const std::string &description,
+                            std::map<std::string, double> enum_dict = {},
+                            const std::string &enum_description = "");
   /**
    * @brief publishServicesTopics starts the server once all the needed variables are
    * registered
@@ -168,6 +122,7 @@ public:
   }
   
   void PublishServicesTopics();
+
 private:
   dynamic_reconfigure::ConfigDescription generateConfigDescription() const;
 
@@ -199,12 +154,6 @@ private:
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
-
-//// Hack until this is moved to pal namespace
-// namespace pal
-//{
-// typedef ::ddynamic_reconfigure::DDynamicReconfigure DDynamicReconfigure;
-//}
 }
 
 #endif

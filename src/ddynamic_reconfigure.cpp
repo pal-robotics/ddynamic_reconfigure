@@ -17,6 +17,93 @@ bool assignValue(std::vector<T> &v, std::string name, V value)
   return false;
 }
 
+template <typename T>
+std::pair<T, T> getMinMax(const std::map<std::string, T> &enum_map)
+{
+  T min, max;
+  if (enum_map.empty())
+  {
+    throw std::runtime_error("Trying to register an empty enum");
+  }
+  
+  min = enum_map.begin()->second;
+  max = enum_map.begin()->second;
+  
+  for (const auto &it : enum_map)
+  {
+    min = std::min(min, it.second);
+    max = std::max(min, it.second);
+  }
+  
+  return std::make_pair(min, max);
+}
+
+template <typename T>
+class PointerRegisteredParam : public RegisteredParam<T>
+{
+public:
+  PointerRegisteredParam(const std::string &name, const std::string &description,
+                         T min_value, T max_value, T *variable, const std::string &type_name,
+                         std::map<std::string, T> enum_dictionary = {},
+                         const std::string &enum_description = "")
+    : RegisteredParam<T>(name, description, min_value, max_value, type_name, enum_dictionary, enum_description)
+    , variable_(variable)
+  {
+  }
+
+  T getCurrentValue() const override
+  {
+    return *variable_;
+  }
+  void updateValue(T new_value) override
+  {
+    *variable_ = new_value;
+  }
+
+protected:
+  T *variable_;
+};
+
+template <typename T>
+class CallbackRegisteredParam : public RegisteredParam<T>
+{
+public:
+  CallbackRegisteredParam(const std::string &name, const std::string &description, T min_value,
+                          T max_value, T current_value, boost::function<void(T value)> callback,
+                           const std::string &type_name,
+                          std::map<std::string, T> enum_dictionary = {}, 
+                          const std::string &enum_description = "")
+    : RegisteredParam<T>(name, description, min_value, max_value, type_name, enum_dictionary, enum_description)
+    , current_value_(current_value)
+    , callback_(callback)
+  {
+  }
+
+  T getCurrentValue() const override
+  {
+    return current_value_;
+  }
+  
+  void updateValue(T new_value) override
+  {
+    callback_(new_value);
+    current_value_ = new_value;
+  }
+
+protected:
+  T current_value_;
+  boost::function<void(T value)> callback_;
+};
+
+template<typename T>
+void attemptGetParam(ros::NodeHandle &nh, const std::string &name, T&param, T default_value)
+{
+  if (nh.hasParam(name))
+  {
+    nh.param<T>(name, param, default_value);
+  }
+}
+
 DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh)
   : node_handle_(nh), advertized_(false)
 {
@@ -30,65 +117,107 @@ DDynamicReconfigure::~DDynamicReconfigure()
   descr_pub_.shutdown();
 }
 
-void DDynamicReconfigure::registerVariable(const std::string &name, int *variable, const std::string &description, int min, int max)
+void DDynamicReconfigure::registerVariable(const std::string &name, int *variable,
+                                           const std::string &description, int min, int max)
 {
-  registered_int_.push_back(boost::make_unique<PointerRegisteredParam<int>>(
-      name, description, min, max, variable));
-  if (node_handle_.hasParam(name))
-  {
-    node_handle_.param<int>(name, *variable, 0);
-  } 
+  attemptGetParam(node_handle_, name, *variable, *variable);
+  registered_int_.push_back(
+      boost::make_unique<PointerRegisteredParam<int>>(name, description, min, max, variable, "int"));
 }
 
-void DDynamicReconfigure::registerVariable(const std::string &name, double *variable, const std::string &description, double min, double max)
+void DDynamicReconfigure::registerVariable(const std::string &name, double *variable,
+                                           const std::string &description, double min, double max)
 {
+  attemptGetParam(node_handle_, name, *variable, *variable);
   registered_double_.push_back(boost::make_unique<PointerRegisteredParam<double>>(
-      name, description, min, max, variable));
-  if (node_handle_.hasParam(name))
-  {
-    node_handle_.param<double>(name, *variable, 0);
-  } 
+      name, description, min, max, variable, "double"));
 }
 
-void DDynamicReconfigure::registerVariable(const std::string &name, bool *variable, const std::string &description)
+void DDynamicReconfigure::registerVariable(const std::string &name, bool *variable,
+                                           const std::string &description)
 {
+  attemptGetParam(node_handle_, name, *variable, *variable);
   registered_bool_.push_back(boost::make_unique<PointerRegisteredParam<bool>>(
-      name, description, false, true, variable));
-  if (node_handle_.hasParam(name))
-  {
-    node_handle_.param<bool>(name, *variable, 0);
-  } 
+      name, description, false, true, variable, "bool"));
 }
 
-void DDynamicReconfigure::registerVariable(const std::string &name, int current_value, const boost::function<void (int)> &callback, const std::string &description, int min, int max)
+void DDynamicReconfigure::registerEnumVariable(const std::string &name, int *variable,
+                                               const std::string &description,
+                                               std::map<std::string, int> enum_dict, 
+                                               const std::string &enum_description)
 {
+  int min, max;
+  std::tie(min, max) = getMinMax(enum_dict);
+  attemptGetParam(node_handle_, name, *variable, *variable);
+  registered_int_.push_back(boost::make_unique<PointerRegisteredParam<int>>(
+      name, description, min, max, variable, "int", enum_dict, enum_description));
+}
+
+void DDynamicReconfigure::registerEnumVariable(const std::string &name, double *variable,
+                                               const std::string &description,
+                                               std::map<std::string, double> enum_dict, 
+                                               const std::string &enum_description)
+{
+  double min, max;
+  std::tie(min, max) = getMinMax(enum_dict);
+  attemptGetParam(node_handle_, name, *variable, *variable);
+  registered_double_.push_back(boost::make_unique<PointerRegisteredParam<double>>(
+      name, description, min, max, variable, "double", enum_dict, enum_description));
+}
+
+void DDynamicReconfigure::registerVariable(const std::string &name, int current_value,
+                                           const boost::function<void(int)> &callback,
+                                           const std::string &description, int min, int max)
+{
+  attemptGetParam(node_handle_, name, current_value, current_value);
   registered_int_.push_back(boost::make_unique<CallbackRegisteredParam<int>>(
-      name, description, min, max, current_value, callback));
-  if (node_handle_.hasParam(name))
-  {
-    node_handle_.param<int>(name, current_value, 0);
-  } 
+      name, description, min, max, current_value, callback, "int"));
 }
 
-void DDynamicReconfigure::registerVariable(const std::string &name, double current_value, const boost::function<void (double)> &callback, const std::string &description, double min, double max)
+void DDynamicReconfigure::registerVariable(const std::string &name, double current_value,
+                                           const boost::function<void(double)> &callback,
+                                           const std::string &description, double min, double max)
 {
+  attemptGetParam(node_handle_, name, current_value, current_value);
   registered_double_.push_back(boost::make_unique<CallbackRegisteredParam<double>>(
-      name, description, min, max, current_value, callback));
-  if (node_handle_.hasParam(name))
-  {
-    node_handle_.param<double>(name, current_value, 0.0);
-  }  
+      name, description, min, max, current_value, callback, "double"));
 }
 
-void DDynamicReconfigure::registerVariable(const std::string &name, bool current_value, const boost::function<void (bool)> &callback, const std::string &description)
+void DDynamicReconfigure::registerVariable(const std::string &name, bool current_value,
+                                           const boost::function<void(bool)> &callback,
+                                           const std::string &description)
 {
+  attemptGetParam(node_handle_, name, current_value, current_value);
   registered_bool_.push_back(boost::make_unique<CallbackRegisteredParam<bool>>(
-      name, description, false, true, current_value, callback));
-  if (node_handle_.hasParam(name))
-  {
-    node_handle_.param<bool>(name, current_value, false);
-  }   
+      name, description, false, true, current_value, callback, "bool"));
 }
+
+void DDynamicReconfigure::registerEnumVariable(const std::string &name, int current_value,
+                                               const boost::function<void(int)> &callback,
+                                               const std::string &description,
+                                               std::map<std::string, int> enum_dict, 
+                                               const std::string &enum_description)
+{
+  int min, max;
+  std::tie(min, max) = getMinMax(enum_dict);
+  attemptGetParam(node_handle_, name, current_value, current_value);
+  registered_int_.push_back(boost::make_unique<CallbackRegisteredParam<int>>(
+      name, description, min, max, current_value, callback, "int", enum_dict, enum_description));
+}
+void DDynamicReconfigure::registerEnumVariable(const std::string &name, double current_value,
+                                               const boost::function<void(double)> &callback,
+                                               const std::string &description,
+                                               std::map<std::string, double> enum_dict, 
+                                               const std::string &enum_description)
+{
+  double min, max;
+  std::tie(min, max) = getMinMax(enum_dict);
+  attemptGetParam(node_handle_, name, current_value, current_value);
+  registered_double_.push_back(boost::make_unique<CallbackRegisteredParam<double>>(
+      name, description, min, max, current_value, callback, "double", enum_dict, enum_description));
+}
+
+
 template <typename ParamType>
 bool confCompare(const ParamType &a, const ParamType &b)
 {
@@ -219,11 +348,7 @@ dynamic_reconfigure::ConfigDescription DDynamicReconfigure::generateConfigDescri
   for (unsigned int i = 0; i < registered_int_.size(); ++i)
   {
     const RegisteredParam<int> &ri = *registered_int_[i];
-    dynamic_reconfigure::ParamDescription p;
-    p.name = ri.name_;
-    p.description = ri.description_;
-    p.level = 0;
-    p.type = "int";
+    dynamic_reconfigure::ParamDescription p = ri.getParamDescription();
     gp.parameters.push_back(p);
     // Max min def
     dynamic_reconfigure::IntParameter ip;
@@ -239,11 +364,7 @@ dynamic_reconfigure::ConfigDescription DDynamicReconfigure::generateConfigDescri
   for (unsigned int i = 0; i < registered_double_.size(); ++i)
   {
     const RegisteredParam<double> &rd = *registered_double_[i];
-    dynamic_reconfigure::ParamDescription p;
-    p.name = rd.name_;
-    p.description = rd.description_;
-    p.level = 0;
-    p.type = "double";
+dynamic_reconfigure::ParamDescription p = rd.getParamDescription();
     gp.parameters.push_back(p);
     // Max min def
     dynamic_reconfigure::DoubleParameter dp;
@@ -259,11 +380,7 @@ dynamic_reconfigure::ConfigDescription DDynamicReconfigure::generateConfigDescri
   for (unsigned int i = 0; i < registered_bool_.size(); ++i)
   {
     const RegisteredParam<bool> &rb = *registered_bool_[i];
-    dynamic_reconfigure::ParamDescription p;
-    p.name = rb.name_;
-    p.description = rb.description_;
-    p.level = 0;
-    p.type = "bool";
+    dynamic_reconfigure::ParamDescription p = rb.getParamDescription();
     gp.parameters.push_back(p);
     // Max min def
     dynamic_reconfigure::BoolParameter bp;
