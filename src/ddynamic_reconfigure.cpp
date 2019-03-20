@@ -1,29 +1,16 @@
 #include <ddynamic_reconfigure/ddynamic_reconfigure.h>
-
+#include <boost/make_unique.hpp>
 namespace ddynamic_reconfigure
 {
-template <class T>
-bool assignValue(std::vector<std::pair<std::string, T *> > v, std::string name, T value)
-{
-  for (unsigned int i = 0; i < v.size(); ++i)
-  {
-    if (v[i].first == name)
-    {
-      *v[i].second = value;
-      return true;
-    }
-  }
-  return false;
-}
 
 template <class T, class V>
-bool assignValue(std::vector<T> v, std::string name, V value)
+bool assignValue(std::vector<T> &v, std::string name, V value)
 {
   for (unsigned int i = 0; i < v.size(); ++i)
   {
-    if (v[i].name == name)
+    if (v[i]->name_ == name)
     {
-      *v[i].value = value;
+      v[i]->updateValue(value);
       return true;
     }
   }
@@ -43,6 +30,65 @@ DDynamicReconfigure::~DDynamicReconfigure()
   descr_pub_.shutdown();
 }
 
+void DDynamicReconfigure::registerVariable(const std::string &name, int *variable, const std::string &description, int min, int max)
+{
+  registered_int_.push_back(boost::make_unique<PointerRegisteredParam<int>>(
+      name, description, min, max, variable));
+  if (node_handle_.hasParam(name))
+  {
+    node_handle_.param<int>(name, *variable, 0);
+  } 
+}
+
+void DDynamicReconfigure::registerVariable(const std::string &name, double *variable, const std::string &description, double min, double max)
+{
+  registered_double_.push_back(boost::make_unique<PointerRegisteredParam<double>>(
+      name, description, min, max, variable));
+  if (node_handle_.hasParam(name))
+  {
+    node_handle_.param<double>(name, *variable, 0);
+  } 
+}
+
+void DDynamicReconfigure::registerVariable(const std::string &name, bool *variable, const std::string &description)
+{
+  registered_bool_.push_back(boost::make_unique<PointerRegisteredParam<bool>>(
+      name, description, false, true, variable));
+  if (node_handle_.hasParam(name))
+  {
+    node_handle_.param<bool>(name, *variable, 0);
+  } 
+}
+
+void DDynamicReconfigure::registerVariable(const std::string &name, int current_value, const boost::function<void (int)> &callback, const std::string &description, int min, int max)
+{
+  registered_int_.push_back(boost::make_unique<CallbackRegisteredParam<int>>(
+      name, description, min, max, current_value, callback));
+  if (node_handle_.hasParam(name))
+  {
+    node_handle_.param<int>(name, current_value, 0);
+  } 
+}
+
+void DDynamicReconfigure::registerVariable(const std::string &name, double current_value, const boost::function<void (double)> &callback, const std::string &description, double min, double max)
+{
+  registered_double_.push_back(boost::make_unique<CallbackRegisteredParam<double>>(
+      name, description, min, max, current_value, callback));
+  if (node_handle_.hasParam(name))
+  {
+    node_handle_.param<double>(name, current_value, 0.0);
+  }  
+}
+
+void DDynamicReconfigure::registerVariable(const std::string &name, bool current_value, const boost::function<void (bool)> &callback, const std::string &description)
+{
+  registered_bool_.push_back(boost::make_unique<CallbackRegisteredParam<bool>>(
+      name, description, false, true, current_value, callback));
+  if (node_handle_.hasParam(name))
+  {
+    node_handle_.param<bool>(name, current_value, false);
+  }   
+}
 template <typename ParamType>
 bool confCompare(const ParamType &a, const ParamType &b)
 {
@@ -97,7 +143,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
   }
   for (unsigned int i = 0; i < req.config.bools.size(); ++i)
   {
-    if (!assignValue<bool>(registered_bool_, req.config.bools[i].name, req.config.bools[i].value))
+    if (!assignValue(registered_bool_, req.config.bools[i].name, req.config.bools[i].value))
     {
       ROS_ERROR_STREAM("Variable :" << req.config.bools[i].name << " not registered");
     }
@@ -164,68 +210,73 @@ void DDynamicReconfigure::clearUserCallback()
   user_callback_.clear();
 }
 
-void DDynamicReconfigure::generateConfigDescription()
+dynamic_reconfigure::ConfigDescription DDynamicReconfigure::generateConfigDescription() const
 {
+  dynamic_reconfigure::ConfigDescription config_description;
   dynamic_reconfigure::Group gp;
 
   gp.name = "default";
   for (unsigned int i = 0; i < registered_int_.size(); ++i)
   {
+    const RegisteredParam<int> &ri = *registered_int_[i];
     dynamic_reconfigure::ParamDescription p;
-    p.name = registered_int_[i].name;
-    // p.description = registered_int_[i].first;
+    p.name = ri.name_;
+    p.description = ri.description_;
     p.level = 0;
     p.type = "int";
     gp.parameters.push_back(p);
     // Max min def
     dynamic_reconfigure::IntParameter ip;
-    ip.name = registered_int_[i].name;
-    ip.value = *registered_int_[i].value;
-    configDescription_.dflt.ints.push_back(ip);
-    ip.value = registered_int_[i].max_value;
-    configDescription_.max.ints.push_back(ip);
-    ip.value = -registered_int_[i].min_value;
-    configDescription_.min.ints.push_back(ip);
+    ip.name = ri.name_;
+    ip.value = ri.getCurrentValue();
+    config_description.dflt.ints.push_back(ip);
+    ip.value = ri.max_value_;
+    config_description.max.ints.push_back(ip);
+    ip.value = -ri.min_value_;
+    config_description.min.ints.push_back(ip);
   }
 
   for (unsigned int i = 0; i < registered_double_.size(); ++i)
   {
+    const RegisteredParam<double> &rd = *registered_double_[i];
     dynamic_reconfigure::ParamDescription p;
-    p.name = registered_double_[i].name;
-    // p.description = registered_double_[i].first;
+    p.name = rd.name_;
+    p.description = rd.description_;
     p.level = 0;
     p.type = "double";
     gp.parameters.push_back(p);
     // Max min def
     dynamic_reconfigure::DoubleParameter dp;
-    dp.name = registered_double_[i].name;
-    dp.value = *registered_double_[i].value;
-    configDescription_.dflt.doubles.push_back(dp);
-    dp.value = registered_double_[i].max_value;
-    configDescription_.max.doubles.push_back(dp);
-    dp.value = registered_double_[i].min_value;
-    configDescription_.min.doubles.push_back(dp);
+    dp.name = rd.name_;
+    dp.value = rd.getCurrentValue();
+    config_description.dflt.doubles.push_back(dp);
+    dp.value = rd.max_value_;
+    config_description.max.doubles.push_back(dp);
+    dp.value = rd.min_value_;
+    config_description.min.doubles.push_back(dp);
   }
 
   for (unsigned int i = 0; i < registered_bool_.size(); ++i)
   {
+    const RegisteredParam<bool> &rb = *registered_bool_[i];
     dynamic_reconfigure::ParamDescription p;
-    p.name = registered_bool_[i].first;
-    // p.description  = registered_bool_[i].first;
+    p.name = rb.name_;
+    p.description = rb.description_;
     p.level = 0;
     p.type = "bool";
     gp.parameters.push_back(p);
     // Max min def
     dynamic_reconfigure::BoolParameter bp;
-    bp.name = registered_bool_[i].first;
-    bp.value = *registered_bool_[i].second;
-    configDescription_.dflt.bools.push_back(bp);
-    bp.value = true;
-    configDescription_.max.bools.push_back(bp);
-    bp.value = false;
-    configDescription_.min.bools.push_back(bp);
+    bp.name = rb.name_;
+    bp.value = rb.getCurrentValue();
+    config_description.dflt.bools.push_back(bp);
+    bp.value = rb.max_value_;
+    config_description.max.bools.push_back(bp);
+    bp.value = rb.min_value_;
+    config_description.min.bools.push_back(bp);
   }
-  configDescription_.groups.push_back(gp);
+  config_description.groups.push_back(gp);
+  return config_description;
 }
 
 
@@ -241,24 +292,24 @@ dynamic_reconfigure::Config DDynamicReconfigure::generateConfig()
   for (unsigned int i = 0; i < registered_int_.size(); ++i)
   {
     dynamic_reconfigure::IntParameter ip;
-    ip.name = registered_int_[i].name;
-    ip.value = *registered_int_[i].value;
+    ip.name = registered_int_[i]->name_;
+    ip.value = registered_int_[i]->getCurrentValue();
     c.ints.push_back(ip);
   }
 
   for (unsigned int i = 0; i < registered_double_.size(); ++i)
   {
     dynamic_reconfigure::DoubleParameter dp;
-    dp.name = registered_double_[i].name;
-    dp.value = *registered_double_[i].value;
+    dp.name = registered_double_[i]->name_;
+    dp.value = registered_double_[i]->getCurrentValue();
     c.doubles.push_back(dp);
   }
 
   for (unsigned int i = 0; i < registered_bool_.size(); ++i)
   {
     dynamic_reconfigure::BoolParameter bp;
-    bp.name = registered_bool_[i].first;
-    bp.value = *registered_bool_[i].second;
+    bp.name = registered_bool_[i]->name_;
+    bp.value = registered_bool_[i]->getCurrentValue();
     c.bools.push_back(bp);
   }
 
@@ -272,8 +323,8 @@ void DDynamicReconfigure::PublishServicesTopics()
 
   descr_pub_ = node_handle_.advertise<dynamic_reconfigure::ConfigDescription>(
       "parameter_descriptions", 1, true);
-  generateConfigDescription();
-  descr_pub_.publish(configDescription_);
+  const dynamic_reconfigure::ConfigDescription config_description = generateConfigDescription();
+  descr_pub_.publish(config_description);
 
   update_pub_ =
       node_handle_.advertise<dynamic_reconfigure::Config>("parameter_updates", 1, true);
@@ -283,65 +334,4 @@ void DDynamicReconfigure::PublishServicesTopics()
   advertized_ = true;
 }
 
-void DDynamicReconfigure::RegisterVariable(int *variable, std::string id)
-{
-  RegisteredInt p;
-  p.name = id;
-  p.value = variable;
-  registered_int_.push_back(p);
-  if (node_handle_.hasParam(id))
-  {
-    node_handle_.param<int>(id, *variable, 0);
-  }
-}
-
-void DDynamicReconfigure::RegisterVariable(int *variable, std::string id, double min, double max)
-{
-  RegisteredInt p;
-  p.name = id;
-  p.value = variable;
-  p.min_value = min;
-  p.max_value = max;
-  registered_int_.push_back(p);
-  if (node_handle_.hasParam(id))
-  {
-    node_handle_.param<int>(id, *variable, 0);
-  }
-}
-
-void DDynamicReconfigure::RegisterVariable(double *variable, std::string id)
-{
-  RegisteredDouble p;
-  p.name = id;
-  p.value = variable;
-  registered_double_.push_back(p);
-  if (node_handle_.hasParam(id))
-  {
-    node_handle_.param<double>(id, *variable, 0.0);
-  }
-}
-
-void DDynamicReconfigure::RegisterVariable(double *variable, std::string id, double min, double max)
-{
-  RegisteredDouble p;
-  p.name = id;
-  p.value = variable;
-  p.min_value = min;
-  p.max_value = max;
-  registered_double_.push_back(p);
-  if (node_handle_.hasParam(id))
-  {
-    node_handle_.param<double>(id, *variable, 0.0);
-  }
-}
-
-void DDynamicReconfigure::RegisterVariable(bool *variable, std::string id)
-{
-  std::pair<std::string, bool *> p(id, variable);
-  registered_bool_.push_back(p);
-  if (node_handle_.hasParam(id))
-  {
-    node_handle_.param<bool>(id, *variable, false);
-  }
-}
 }

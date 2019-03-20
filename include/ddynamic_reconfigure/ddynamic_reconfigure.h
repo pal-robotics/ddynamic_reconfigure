@@ -21,36 +21,79 @@ namespace ddynamic_reconfigure
 /**
  * @brief The DDynamicReconfigure class allows to use ROS dynamic reconfigure without the
  * need to write
- * a custom cpf file, variables are register and exposed at run time
+ * a custom cpf file, variables are registered and exposed at run time. 
+ * Modification of the variables is done through a variable pointer or through a callback function.
  */
 class DDynamicReconfigure
 {
-  struct RegisteredInt
+  template <typename T>
+  class RegisteredParam
   {
-    std::string name;
-    int *value;
-    int max_value;
-    int min_value;
-
-    RegisteredInt()
+  public:
+    RegisteredParam(const std::string &name, const std::string &description,
+                    T min_value, T max_value)
+      : name_(name), description_(description), min_value_(min_value), max_value_(max_value)
     {
-      max_value = 100;
-      min_value = -100;
     }
+    
+    virtual T getCurrentValue() const = 0;
+    virtual void updateValue(T new_value) = 0;
+    
+    
+    const std::string name_;
+    const std::string description_;
+    const T min_value_;
+    const T max_value_;
   };
-
-  struct RegisteredDouble
+  
+  template <typename T>
+  class PointerRegisteredParam : public RegisteredParam<T>
   {
-    std::string name;
-    double *value;
-    double max_value;
-    double min_value;
-
-    RegisteredDouble()
-    {
-      max_value = 100;
-      min_value = -100;
+  public:
+    PointerRegisteredParam(const std::string &name, const std::string &description,
+                            T min_value, T max_value, T *variable)
+      : RegisteredParam<T>(name, description, min_value, max_value), variable_(variable)
+    {      
     }
+    
+    virtual T getCurrentValue() const override
+    {
+      return *variable_;
+    }
+    virtual void updateValue(T new_value) override
+    {
+      *variable_ = new_value;
+    }
+    
+  protected:
+    T *variable_;
+  };
+  
+  template <typename T>
+  class CallbackRegisteredParam : public RegisteredParam<T>
+  {
+  public:
+    CallbackRegisteredParam(const std::string &name, const std::string &description,
+                            T min_value, T max_value, T current_value,
+                            boost::function<void(T value)> callback)
+      : RegisteredParam<T>(name, description, min_value, max_value)
+      , current_value_(current_value)
+      , callback_(callback)
+    {      
+    }
+    
+    virtual T getCurrentValue() const override
+    {
+      return current_value_;
+    }
+    virtual void updateValue(T new_value) override
+    {
+      callback_(new_value);
+      current_value_ = new_value;
+    }
+    
+    T current_value_;
+    boost::function<void(T value)> callback_;
   };
 
 public:
@@ -61,31 +104,72 @@ public:
 
   virtual ~DDynamicReconfigure();
 
-  void RegisterVariable(int *variable, std::string id);
+  /**
+   * @brief registerVariable register a variable to be modified via the
+   * dynamic_reconfigure API. When a change is made, it will be reflected in the
+   * variable directly
+   */
+  void registerVariable(const std::string &name, int *variable,
+                        const std::string &description = "", int min = -100, int max = 100);
 
-  void RegisterVariable(int *variable, std::string id, double min, double max);
+  void registerVariable(const std::string &name, double *variable,
+                        const std::string &description = "", double min = -100,
+                        double max = 100);
 
-  void RegisterVariable(double *variable, std::string id);
-
-  void RegisterVariable(double *variable, std::string id, double min, double max);
-
-  void RegisterVariable(bool *variable, std::string id);
+  void registerVariable(const std::string &name, bool *variable,
+                        const std::string &description = "");
 
   /**
-   * @brief PublishServicesTopics stars the server once all the need variables are
+   * @brief registerVariable register a variable to be modified via the
+   * dynamic_reconfigure API. When a change is made, the callback will be called with the
+   * new value
+   */
+  void registerVariable(const std::string &name, int current_value,
+                        const boost::function<void(int value)> &callback,
+                        const std::string &description = "", int min = -100, int max = 100);
+  void registerVariable(const std::string &name, double current_value,
+                        const boost::function<void(double value)> &callback,
+                        const std::string &description = "", double min = -100,
+                        double max = 100);
+  void registerVariable(const std::string &name, bool current_value,
+                        const boost::function<void(bool value)> &callback,
+                        const std::string &description = "");
+
+  /**
+   * @brief publishServicesTopics starts the server once all the needed variables are
    * registered
    */
-  void PublishServicesTopics();
+  void publishServicesTopics();
 
   void updatePublishedInformation();
 
   typedef boost::function<void()> UserCallbackType;
+  
+  /**
+   * @brief setUserCallback An optional callback that will be called whenever a value is changed
+   */
   void setUserCallback(const UserCallbackType &callback);
 
   void clearUserCallback();
 
+  
+  /**
+   * Deprecated functions. For backwards compatibility
+   */
+  template <typename T>
+  void RegisterVariable(T *variable, std::string id, double min = -100, double max = 100)
+  {
+    registerVariable(id, variable, "", min, max);
+  }
+  
+  void RegisterVariable(bool *variable, std::string id)
+  {
+    registerVariable(id, variable, "");
+  }
+  
+  void PublishServicesTopics();
 private:
-  void generateConfigDescription();
+  dynamic_reconfigure::ConfigDescription generateConfigDescription() const;
 
   dynamic_reconfigure::Config generateConfig();
 
@@ -104,11 +188,9 @@ private:
   bool advertized_;
 
   // Registered variables
-  std::vector<RegisteredInt> registered_int_;
-  std::vector<RegisteredDouble> registered_double_;
-  std::vector<std::pair<std::string, bool *> > registered_bool_;
-
-  dynamic_reconfigure::ConfigDescription configDescription_;
+  std::vector<std::unique_ptr<RegisteredParam<int>>> registered_int_;
+  std::vector<std::unique_ptr<RegisteredParam<double>>> registered_double_;
+  std::vector<std::unique_ptr<RegisteredParam<bool>>> registered_bool_;
   
   UserCallbackType user_callback_;
   
