@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2019-03-21)
+------------------
 * Merge branch 'refactor-functions' into 'erbium-devel'
   Accept functions callback per individual variable
   See merge request control/ddynamic_reconfigure!12
