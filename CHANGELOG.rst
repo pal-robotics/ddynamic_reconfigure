@@ -2,6 +2,17 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'refactor-functions' into 'erbium-devel'
+  Accept functions callback per individual variable
+  See merge request control/ddynamic_reconfigure!12
+* Extend readme
+* Add string and cleanup implementation
+* Add enums and callbacks
+* Accept functions callback per individual variable
+* Contributors: Victor Lopez
+
 0.1.7 (2019-03-20)
 ------------------
 * Merge branch 'fix-gmock-dependency' into 'erbium-devel'
