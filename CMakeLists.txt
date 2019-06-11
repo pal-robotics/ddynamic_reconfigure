@@ -51,11 +51,14 @@ install(DIRECTORY include/${PROJECT_NAME}/
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
     add_rostest_gmock(ddynamic_reconfigure-test test/ddynamic_reconfigure.test test/test_ddynamic_reconfigure.cpp)
-    target_link_libraries(ddynamic_reconfigure-test
+    if(TARGET ddynamic_reconfigure-test)
+      target_link_libraries(ddynamic_reconfigure-test
                                 ${PROJECT_NAME})
+    endif(TARGET ddynamic_reconfigure-test)
     add_executable(ddynamic_reconfigure_auto_update_test
         test/ddynamic_reconfigure_auto_update_test.cpp)
-    target_link_libraries(ddynamic_reconfigure_auto_update_test ${PROJECT_NAME}
-        ${catkin_LIBRARIES})
-
+    if(TARGET ddynamic_reconfigure_auto_update_test)
+      target_link_libraries(ddynamic_reconfigure_auto_update_test ${PROJECT_NAME}
+          ${catkin_LIBRARIES})
+    endif(TARGET ddynamic_reconfigure_auto_update_test)
 endif(CATKIN_ENABLE_TESTING)
