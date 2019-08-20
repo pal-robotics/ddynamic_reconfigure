@@ -114,6 +114,12 @@ bool confCompare(const ParamType &a, const ParamType &b)
   return (a.name == b.name) && (a.value == b.value);
 }
 
+template <>
+bool confCompare(const dynamic_reconfigure::DoubleParameter &a, const dynamic_reconfigure::DoubleParameter &b)
+{
+  return (a.name == b.name) && (std::fabs(a.value - b.value) < std::numeric_limits<double>::epsilon());
+}
+
 void DDynamicReconfigure::updatePublishedInformation()
 {
   dynamic_reconfigure::Config config_msg = generateConfig();
