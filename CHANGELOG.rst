@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.1 (2019-08-28)
+------------------
 * Merge branch 'fix-double-comparison' into 'erbium-devel'
   Fix double comparison
   See merge request control/ddynamic_reconfigure!14
