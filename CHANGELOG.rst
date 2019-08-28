@@ -2,6 +2,15 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'fix-double-comparison' into 'erbium-devel'
+  Fix double comparison
+  See merge request control/ddynamic_reconfigure!14
+* Fix double comparison
+* Add BSD License text
+* Contributors: Victor Lopez
+
 0.2.0 (2019-03-21)
 ------------------
 * Merge branch 'refactor-functions' into 'erbium-devel'
