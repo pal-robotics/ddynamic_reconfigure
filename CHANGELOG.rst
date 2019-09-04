@@ -2,6 +2,11 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add SYSTEM include_directories
+* Contributors: Victor Lopez
+
 0.2.1 (2019-08-28)
 ------------------
 * Merge branch 'fix-double-comparison' into 'erbium-devel'
