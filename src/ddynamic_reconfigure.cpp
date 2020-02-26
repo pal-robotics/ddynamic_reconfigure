@@ -83,7 +83,7 @@ void DDynamicReconfigure::registerEnumVariable(const std::string &name, T *varia
 
 
 template <typename T>
-void DDynamicReconfigure::registerVariable(const std::string &name, T current_value,
+void DDynamicReconfigure::registerVariable(const std::string &name, T &current_value,
                       const boost::function<void(T value)> &callback,
                       const std::string &description, T min, T max)
 {
@@ -392,7 +392,7 @@ template void DDynamicReconfigure::registerEnumVariable(const std::string &name,
                                                         const std::string &description,
                                                         std::map<std::string, int> enum_dict,
                                                         const std::string &enum_description);
-template void DDynamicReconfigure::registerVariable(const std::string &name, int current_value,
+template void DDynamicReconfigure::registerVariable(const std::string &name, int &current_value,
                                                     const boost::function<void(int value)> &callback,
                                                     const std::string &description,
                                                     int min, int max);
@@ -413,7 +413,7 @@ template void DDynamicReconfigure::registerEnumVariable(const std::string &name,
                                                         const std::string &description,
                                                         std::map<std::string, double> enum_dict,
                                                         const std::string &enum_description);
-template void DDynamicReconfigure::registerVariable(const std::string &name, double current_value,
+template void DDynamicReconfigure::registerVariable(const std::string &name, double &current_value,
                                                     const boost::function<void(double value)> &callback,
                                                     const std::string &description,
                                                     double min, double max);
@@ -436,7 +436,7 @@ template void DDynamicReconfigure::registerEnumVariable(const std::string &name,
                                                         const std::string &description,
                                                         std::map<std::string, bool> enum_dict,
                                                         const std::string &enum_description);
-template void DDynamicReconfigure::registerVariable(const std::string &name, bool current_value,
+template void DDynamicReconfigure::registerVariable(const std::string &name, bool &current_value,
                                                     const boost::function<void(bool value)> &callback,
                                                     const std::string &description,
                                                     bool min, bool max);
@@ -457,7 +457,7 @@ template void DDynamicReconfigure::registerEnumVariable(const std::string &name,
                                                         const std::string &description,
                                                         std::map<std::string, std::string> enum_dict,
                                                         const std::string &enum_description);
-template void DDynamicReconfigure::registerVariable(const std::string &name, std::string current_value,
+template void DDynamicReconfigure::registerVariable(const std::string &name, std::string &current_value,
                                                     const boost::function<void(std::string value)> &callback,
                                                     const std::string &description,
                                                     std::string min, std::string max);
