@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.3 (2020-04-10)
+------------------
 * Merge pull request #10 from ooeygui/kinetic-devel
   Support Windows
 * Windows support
