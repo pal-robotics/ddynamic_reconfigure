@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -53,9 +54,12 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 if (CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
+    if (NOT WIN32)
     add_rostest_gmock(ddynamic_reconfigure-test test/ddynamic_reconfigure.test test/test_ddynamic_reconfigure.cpp)
     target_link_libraries(ddynamic_reconfigure-test
                                 ${PROJECT_NAME})
+    endif()
+    
     add_executable(ddynamic_reconfigure_auto_update_test
         test/ddynamic_reconfigure_auto_update_test.cpp)
     target_link_libraries(ddynamic_reconfigure_auto_update_test ${PROJECT_NAME}
