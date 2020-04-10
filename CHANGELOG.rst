@@ -2,6 +2,19 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request #10 from ooeygui/kinetic-devel
+  Support Windows
+* Windows support
+* Fix for Windows
+* Fix getMax(), wrong numeric_limit
+* Add example for DDR with NodeHandle
+* Merge pull request #7 from reinzor/patch-1
+  Update README.md - show proper heading
+* Update README.md
+* Contributors: Lou Amadio, Rein Appeldoorn, Victor Lopez
+
 0.2.2 (2019-09-04)
 ------------------
 * Add SYSTEM include_directories
