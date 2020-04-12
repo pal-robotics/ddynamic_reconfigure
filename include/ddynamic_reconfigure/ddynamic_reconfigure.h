@@ -77,7 +77,7 @@ public:
    * new value
    */
   template <typename T>
-  void registerVariable(const std::string &name, T current_value,
+  void registerVariable(const std::string &name, T &current_value,
                         const boost::function<void(T value)> &callback,
                         const std::string &description = "", T min = getMin<T>(), T max = getMax<T>());
   
