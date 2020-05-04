@@ -63,13 +63,15 @@ public:
    */
   template<typename T>
   void registerVariable(const std::string &name, T *variable,
-                        const std::string &description = "", T min = getMin<T>(), T max = getMax<T>());
+                        const std::string &description = "", T min = getMin<T>(), T max = getMax<T>(),
+                        const std::string &group = "Default");
 
   template<typename T>
   void registerEnumVariable(const std::string &name, T *variable,
                             const std::string &description = "",
                             std::map<std::string, T> enum_dict = {},
-                            const std::string &enum_description = "");
+                            const std::string &enum_description = "",
+                            const std::string &group = "Default");
 
   /**
    * @brief registerVariable register a variable to be modified via the
@@ -79,14 +81,16 @@ public:
   template <typename T>
   void registerVariable(const std::string &name, T current_value,
                         const boost::function<void(T value)> &callback,
-                        const std::string &description = "", T min = getMin<T>(), T max = getMax<T>());
+                        const std::string &description = "", T min = getMin<T>(), T max = getMax<T>(),
+                        const std::string &group = "Default");
   
   template <typename T>
   void registerEnumVariable(const std::string &name, T current_value,
                             const boost::function<void(T)> &callback,
                             const std::string &description,
                             std::map<std::string, T> enum_dict = {},
-                            const std::string &enum_description = "");
+                            const std::string &enum_description = "",
+                            const std::string &group = "Default");
   
   /**
    * @brief publishServicesTopics starts the server once all the needed variables are
@@ -144,6 +148,7 @@ private:
   std::vector<std::unique_ptr<RegisteredParam<double>>> registered_double_;
   std::vector<std::unique_ptr<RegisteredParam<bool>>> registered_bool_;
   std::vector<std::unique_ptr<RegisteredParam<std::string>>> registered_string_;
+  std::vector<std::string> config_groups_;
   
   UserCallbackType user_callback_;
   

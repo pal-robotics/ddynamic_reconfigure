@@ -43,13 +43,14 @@ class RegisteredParam
 public:
   RegisteredParam(const std::string &name, const std::string &description, T min_value,
                   T max_value, std::map<std::string, T> enum_dictionary = {},
-                  const std::string &enum_description = "")
+                  const std::string &enum_description = "", const std::string &group = "")
     : name_(name)
     , description_(description)
     , min_value_(min_value)
     , max_value_(max_value)
     , enum_dictionary_(enum_dictionary)
     , enum_description_(enum_description)
+    , group_(group)
   {
   }
   
@@ -154,6 +155,7 @@ public:
   const T max_value_;
   const std::map<std::string, T> enum_dictionary_;
   const std::string enum_description_;
+  const std::string group_;
 };
 
 
@@ -164,8 +166,8 @@ public:
   PointerRegisteredParam(const std::string &name, const std::string &description,
                          T min_value, T max_value, T *variable, 
                          std::map<std::string, T> enum_dictionary = {},
-                         const std::string &enum_description = "")
-    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description)
+                         const std::string &enum_description = "", const std::string &group = "")
+    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description, group)
     , variable_(variable)
   {
   }
@@ -190,8 +192,8 @@ public:
   CallbackRegisteredParam(const std::string &name, const std::string &description, T min_value,
                           T max_value, T current_value, boost::function<void(T value)> callback,
                           std::map<std::string, T> enum_dictionary = {}, 
-                          const std::string &enum_description = "")
-    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description)
+                          const std::string &enum_description = "", const std::string &group = "")
+    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description, group)
     , current_value_(current_value)
     , callback_(callback)
   {
