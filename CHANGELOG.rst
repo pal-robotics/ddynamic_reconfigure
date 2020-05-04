@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2020-05-04)
+------------------
 * Merge pull request #12 from eurogroep/feat/groups
   feat(groups): Option to specify a group for a variable
 * feat(groups): Option to specify a group for a variable
