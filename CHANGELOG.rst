@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.1 (2020-10-08)
+------------------
 * Merge pull request #18 from clearpathrobotics/issue_17
   Reverse the order of creation of the topic publisher and rosservice
 * Reverse the order of creation of the topic publisher and rosservice to prevent startup race conditions leading to crash.
