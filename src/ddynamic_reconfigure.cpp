@@ -17,9 +17,6 @@ DDynamicReconfigure::~DDynamicReconfigure()
 
 void DDynamicReconfigure::publishServicesTopics()
 {
-  set_service_ = node_handle_.advertiseService("set_parameters",
-                                               &DDynamicReconfigure::setConfigCallback, this);
-
   descr_pub_ = node_handle_.advertise<dynamic_reconfigure::ConfigDescription>(
       "parameter_descriptions", 1, true);
   const dynamic_reconfigure::ConfigDescription config_description = generateConfigDescription();
@@ -35,6 +32,9 @@ void DDynamicReconfigure::publishServicesTopics()
       node_handle_.advertise<dynamic_reconfigure::Config>("parameter_updates", 1, true);
 
   update_pub_.publish(generateConfig());
+
+  set_service_ = node_handle_.advertiseService("set_parameters",
+                                               &DDynamicReconfigure::setConfigCallback, this);
 
   advertised_ = true;
 }
@@ -94,7 +94,7 @@ void DDynamicReconfigure::registerVariable(const std::string &name, T current_va
                       const boost::function<void(T value)> &callback,
                       const std::string &description, T min, T max, const std::string &group)
 {
-  
+
   attemptGetParam(node_handle_, name, current_value, current_value);
   getRegisteredVector<T>().push_back(boost::make_unique<CallbackRegisteredParam<T>>(
       name, description, min, max, current_value, callback, std::map<std::string, T>(), "", group));
@@ -135,7 +135,7 @@ void DDynamicReconfigure::updatePublishedInformation()
   has_changed = has_changed || config_msg.ints.size() != last_config_.ints.size();
   has_changed = has_changed || config_msg.doubles.size() != last_config_.doubles.size();
   has_changed = has_changed || config_msg.bools.size() != last_config_.bools.size();
-  
+
   has_changed = has_changed || !std::equal(config_msg.ints.begin(), config_msg.ints.end(),
                              last_config_.ints.begin(),
                              confCompare<dynamic_reconfigure::IntParameter>);
@@ -234,7 +234,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
   dynamic_reconfigure::Config config_msg = generateConfig();
   update_pub_.publish(config_msg);
   rsp.config = config_msg;
-  
+
   pub_config_timer_.setPeriod(ros::Duration(5.0));
   return true;
 }
@@ -407,7 +407,7 @@ dynamic_reconfigure::Config DDynamicReconfigure::generateConfig()
     bp.value = registered_bool_[i]->getCurrentValue();
     c.bools.push_back(bp);
   }
-  
+
   for (unsigned int i = 0; i < registered_string_.size(); ++i)
   {
     dynamic_reconfigure::StrParameter bs;
