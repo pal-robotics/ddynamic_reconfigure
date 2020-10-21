@@ -35,6 +35,8 @@
 #include <sstream>
 #include <type_traits>
 #include <dynamic_reconfigure/ParamDescription.h>
+#include <boost/function.hpp>
+
 namespace ddynamic_reconfigure {
    
 template <typename T>
@@ -215,6 +217,35 @@ protected:
   boost::function<void(T value)> callback_;
 };
 
+template <typename T>
+class CallbackPointerRegisteredParam : public RegisteredParam<T>
+{
+ public:
+  CallbackPointerRegisteredParam(const std::string &name, const std::string &description, T min_value,
+                          T max_value, T *variable, boost::function<void(T value)> callback,
+                          std::map<std::string, T> enum_dictionary = {},
+                          const std::string &enum_description = "", const std::string &group = "")
+      : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description, group)
+        , variable_(variable)
+        , callback_(callback)
+  {
+  }
+
+  T getCurrentValue() const override
+  {
+    return *variable_;
+  }
+
+  void updateValue(T new_value) override
+  {
+    callback_(new_value);
+    *variable_ = new_value;
+  }
+
+ protected:
+  T *variable_;
+  boost::function<void(T value)> callback_;
+};
 
 } // namespace ddynamic_reconfigure
 

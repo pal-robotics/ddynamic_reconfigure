@@ -85,6 +85,12 @@ public:
                         const std::string &group = "Default");
   
   template <typename T>
+  void registerVariable(const std::string &name,
+                        const boost::function<void(T value)> &callback, T *variable,
+                        const std::string &description = "", T min = getMin<T>(), T max = getMax<T>(),
+                        const std::string &group = "Default");
+
+  template <typename T>
   void registerEnumVariable(const std::string &name, T current_value,
                             const boost::function<void(T)> &callback,
                             const std::string &description,

@@ -102,6 +102,17 @@ void DDynamicReconfigure::registerVariable(const std::string &name, T current_va
 
 
 template <typename T>
+void DDynamicReconfigure::registerVariable(const std::string &name,
+                                           const boost::function<void(T value)> &callback, T *variable,
+                                           const std::string &description, T min, T max, const std::string &group)
+{
+  attemptGetParam(node_handle_, name, *variable, *variable);
+  getRegisteredVector<T>().push_back(boost::make_unique<CallbackPointerRegisteredParam<T>>(
+      name, description, min, max, variable, callback, std::map<std::string, T>(), "", group));
+}
+
+
+template <typename T>
 void DDynamicReconfigure::registerEnumVariable(const std::string &name, T current_value,
                           const boost::function<void(T)> &callback,
                           const std::string &description,
@@ -451,6 +462,11 @@ template void DDynamicReconfigure::registerVariable(const std::string &name, int
                                                     const std::string &description,
                                                     int min, int max, const std::string &group);
 
+template void DDynamicReconfigure::registerVariable(const std::string &name,
+                                                    const boost::function<void(int value)> &callback, int *variable,
+                                                    const std::string &description,
+                                                    int min, int max, const std::string &group);
+
 template void DDynamicReconfigure::registerEnumVariable(
     const std::string &name, int current_value,
     const boost::function<void(int)> &callback, const std::string &description,
@@ -469,6 +485,11 @@ template void DDynamicReconfigure::registerEnumVariable(const std::string &name,
                                                         const std::string &enum_description, const std::string &group);
 template void DDynamicReconfigure::registerVariable(const std::string &name, double current_value,
                                                     const boost::function<void(double value)> &callback,
+                                                    const std::string &description,
+                                                    double min, double max, const std::string &group);
+
+template void DDynamicReconfigure::registerVariable(const std::string &name,
+                                                    const boost::function<void(double value)> &callback, double *variable,
                                                     const std::string &description,
                                                     double min, double max, const std::string &group);
 
@@ -495,6 +516,11 @@ template void DDynamicReconfigure::registerVariable(const std::string &name, boo
                                                     const std::string &description,
                                                     bool min, bool max, const std::string &group);
 
+template void DDynamicReconfigure::registerVariable(const std::string &name,
+                                                    const boost::function<void(bool value)> &callback, bool *variable,
+                                                    const std::string &description,
+                                                    bool min, bool max, const std::string &group);
+
 template void DDynamicReconfigure::registerEnumVariable(
     const std::string &name, bool current_value,
     const boost::function<void(bool)> &callback, const std::string &description,
@@ -513,6 +539,11 @@ template void DDynamicReconfigure::registerEnumVariable(const std::string &name,
                                                         const std::string &enum_description, const std::string &group);
 template void DDynamicReconfigure::registerVariable(const std::string &name, std::string current_value,
                                                     const boost::function<void(std::string value)> &callback,
+                                                    const std::string &description,
+                                                    std::string min, std::string max, const std::string &group);
+
+template void DDynamicReconfigure::registerVariable(const std::string &name,
+                                                    const boost::function<void(std::string value)> &callback, std::string *variable,
                                                     const std::string &description,
                                                     std::string min, std::string max, const std::string &group);
 
