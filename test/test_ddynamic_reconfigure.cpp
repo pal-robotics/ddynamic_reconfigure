@@ -122,8 +122,6 @@ TEST_F(DDynamicReconfigureTest, globalCallbackTest)
   EXPECT_NEAR(mock.double_param_, double_param.value, 0.0001);
 }
 
-
-
 TEST_F(DDynamicReconfigureTest, callbackTest)
 {
   ros::NodeHandle nh("~");
@@ -176,6 +174,60 @@ TEST_F(DDynamicReconfigureTest, callbackTest)
   EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));  
 }
 
+
+TEST_F(DDynamicReconfigureTest, pointerCallbackTest)
+{
+  ros::NodeHandle nh("~");
+  DDynamicReconfigure dd(nh);
+  MockClass mock;
+  dd.registerVariable<int>("int_param", &mock.int_param_,
+                      boost::bind(&MockClass::intCallback, &mock, _1));
+  dd.registerVariable<double>("double_param", &mock.double_param_,
+                      boost::bind(&MockClass::doubleCallback, &mock, _1));
+  dd.registerVariable<bool>("bool_param", &mock.bool_param_,
+                      boost::bind(&MockClass::boolCallback, &mock, _1));
+  dd.registerVariable<std::string>("str_param", &mock.str_param_,
+                      boost::bind(&MockClass::strCallback, &mock, _1));
+  dd.PublishServicesTopics();
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+
+  dynamic_reconfigure::Reconfigure srv;
+  dynamic_reconfigure::IntParameter int_param;
+  int_param.name = "int_param";
+  int_param.value = -1234;
+
+  dynamic_reconfigure::DoubleParameter double_param;
+  double_param.name = "double_param";
+  double_param.value = 42.4242;
+
+  dynamic_reconfigure::StrParameter str_param;
+  str_param.name = "str_param";
+  str_param.value = "hello";
+
+  EXPECT_CALL(mock,
+              intCallback(int_param.value))
+      .Times(Exactly(2));
+  EXPECT_CALL(mock,
+              doubleCallback(double_param.value))
+      .Times(Exactly(1));
+  EXPECT_CALL(mock,
+              boolCallback(_))
+      .Times(Exactly(0));
+  EXPECT_CALL(mock,
+              strCallback("hello"))
+      .Times(Exactly(1));
+
+  srv.request.config.ints.push_back(int_param);
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  EXPECT_EQ(mock.int_param_, int_param.value);
+
+  srv.request.config.doubles.push_back(double_param);
+  srv.request.config.strs.push_back(str_param);
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  EXPECT_EQ(mock.double_param_, double_param.value);
+  EXPECT_EQ(mock.str_param_, str_param.value);
+}
 TEST_F(DDynamicReconfigureTest, threadTest)
 {
   ros::NodeHandle nh("foo");

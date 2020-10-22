@@ -60,6 +60,8 @@ public:
    * @brief registerVariable register a variable to be modified via the
    * dynamic_reconfigure API. When a change is made, it will be reflected in the
    * variable directly
+   * @deprecated In the future this method will be merged with the registerVariable
+   * that takes a pointer and a callback, but with the callback being optional
    */
   template<typename T>
   void registerVariable(const std::string &name, T *variable,
@@ -72,11 +74,30 @@ public:
                             std::map<std::string, T> enum_dict = {},
                             const std::string &enum_description = "",
                             const std::string &group = "Default");
+  /**
+   * @brief registerVariable like the functions above, but with a callback to be called when the
+   * variable is changed from the dynamic_reconfigure API.
+   */
+  template <typename T>
+  void registerVariable(const std::string &name, T *variable,
+                        const boost::function<void(T value)> &callback,
+                        const std::string &description = "", T min = getMin<T>(), T max = getMax<T>(),
+                        const std::string &group = "Default");
+
+  template <typename T>
+  void registerEnumVariable(const std::string &name, T *variable,
+                            const boost::function<void(T)> &callback,
+                            const std::string &description,
+                            std::map<std::string, T> enum_dict = {},
+                            const std::string &enum_description = "",
+                            const std::string &group = "Default");
 
   /**
    * @brief registerVariable register a variable to be modified via the
    * dynamic_reconfigure API. When a change is made, the callback will be called with the
-   * new value
+   * new value. The variable itself is not modified when registered using this method.
+   * This method is useful for "dynamic reconfigure variables" that don't have a
+   * direct equivalent in the C++ code, such as vector.size().
    */
   template <typename T>
   void registerVariable(const std::string &name, T current_value,

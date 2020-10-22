@@ -68,14 +68,33 @@ template<typename T>
 void DDynamicReconfigure::registerVariable(const std::string &name, T *variable,
                       const std::string &description, T min, T max, const std::string &group)
 {
+  registerVariable(name, variable, {}, description, min, max, group);
+}
+
+template<typename T>
+void DDynamicReconfigure::registerEnumVariable(const std::string &name, T *variable,
+                          const std::string &description,
+                          std::map<std::string, T> enum_dict,
+                          const std::string &enum_description, const std::string &group)
+{
+  registerEnumVariable(name, variable, {}, description, enum_dict, enum_description, group);
+}
+
+template<typename T>
+void DDynamicReconfigure::registerVariable(const std::string &name, T *variable,
+                      const boost::function<void(T value)> &callback,
+                      const std::string &description, T min, T max, const std::string &group)
+{
   attemptGetParam(node_handle_, name, *variable, *variable);
   getRegisteredVector<T>().push_back(
       boost::make_unique<PointerRegisteredParam<T>>(name, description, min, max, variable,
+                                                    callback,
                                                     std::map<std::string, T>(), "", group));
 }
 
 template<typename T>
 void DDynamicReconfigure::registerEnumVariable(const std::string &name, T *variable,
+                          const boost::function<void(T value)> &callback,
                           const std::string &description,
                           std::map<std::string, T> enum_dict,
                           const std::string &enum_description, const std::string &group)
@@ -85,9 +104,8 @@ void DDynamicReconfigure::registerEnumVariable(const std::string &name, T *varia
   attemptGetParam(node_handle_, name, *variable, *variable);
   getRegisteredVector<T>().push_back(
       boost::make_unique<PointerRegisteredParam<T>>(
-      name, description, min, max, variable, enum_dict, enum_description, group));
+      name, description, min, max, variable, callback, enum_dict, enum_description, group));
 }
-
 
 template <typename T>
 void DDynamicReconfigure::registerVariable(const std::string &name, T current_value,
@@ -296,7 +314,6 @@ dynamic_reconfigure::ConfigDescription DDynamicReconfigure::generateConfigDescri
 
     auto& gp = groups[rd.group_];
     gp.parameters.push_back(p);
-
     // Max min def
     dynamic_reconfigure::DoubleParameter dp;
     dp.name = rd.name_;
