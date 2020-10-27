@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.2 (2020-10-27)
+------------------
 * Merge branch 'pointer-with-callback' into 'erbium-devel'
   Add new function that takes pointer and a callback
   See merge request control/ddynamic_reconfigure!16
