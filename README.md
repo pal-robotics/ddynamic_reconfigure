@@ -52,6 +52,36 @@ int main(int argc, char **argv) {
  }
 ```
 
+Modifying a variable via a callback and in place variable:
+```cpp
+#include <ros/ros.h>
+#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
+
+int global_int;
+
+void paramCb(int new_value)
+{
+   global_int = new_value;
+   ROS_INFO("Param modified");
+}
+
+int main(int argc, char **argv) {
+    // ROS init stage
+    ros::init(argc, argv, "ddynamic_tutorials");
+    ros::NodeHandle nh;
+    ddynamic_reconfigure::DDynamicReconfigure ddr;
+    
+    int int_param = 10;
+    ddr.registerVariable<int>("int_param", boost::bind(paramCb, _1), &int_param, "param description");
+    ddr.publishServicesTopics();
+    // Now parameter can be modified from the dynamic_reconfigure GUI or other tools and the callback is called on each update
+    ros::spin();
+    return 0;
+ }
+```
+
+**NOTE:** when updating the registered variable internally, its value will be reflected on the `~/parameter_updates` topic but the callback will not be called.
+
 Registering an enum:
 
 ```cpp
