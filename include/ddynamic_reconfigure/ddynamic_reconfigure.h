@@ -119,9 +119,9 @@ public:
    * @brief publishServicesTopics starts the server once all the needed variables are
    * registered
    */
-  void publishServicesTopics();
+  virtual void publishServicesTopics();
 
-  void updatePublishedInformation();
+  virtual void updatePublishedInformation();
 
   typedef boost::function<void()> UserCallbackType;
 
@@ -129,33 +129,34 @@ public:
    * @brief setUserCallback An optional callback that will be called whenever a value is
    * changed
    */
-  void setUserCallback(const UserCallbackType &callback);
+  virtual void setUserCallback(const UserCallbackType &callback);
 
-  void clearUserCallback();
+  virtual void clearUserCallback();
 
 
   /**
    * Deprecated functions. For backwards compatibility, cannot be a template for legacy
    * reasons
    */
-  void RegisterVariable(double *variable, std::string id, double min = -100, double max = 100);
+  virtual void RegisterVariable(double *variable, std::string id, double min = -100,
+                                double max = 100);
 
-  void RegisterVariable(int *variable, std::string id, int min = -100, int max = 100);
+  virtual void RegisterVariable(int *variable, std::string id, int min = -100, int max = 100);
 
-  void RegisterVariable(bool *variable, std::string id);
+  virtual void RegisterVariable(bool *variable, std::string id);
 
-  void PublishServicesTopics();
+  virtual void PublishServicesTopics();
 
-private:
+protected:
   template <typename T>
   std::vector<std::unique_ptr<RegisteredParam<T>>> &getRegisteredVector();
 
-  dynamic_reconfigure::ConfigDescription generateConfigDescription() const;
+  virtual dynamic_reconfigure::ConfigDescription generateConfigDescription() const;
 
-  dynamic_reconfigure::Config generateConfig();
+  virtual dynamic_reconfigure::Config generateConfig();
 
-  bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
-                         dynamic_reconfigure::Reconfigure::Response &rsp);
+  virtual bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
+                                 dynamic_reconfigure::Reconfigure::Response &rsp);
 
   /**
    * @brief setUserCallback Set a function to be called when parameters have changed
