@@ -2,8 +2,8 @@
 #include <boost/make_unique.hpp>
 namespace ddynamic_reconfigure
 {
-DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh)
-  : node_handle_(nh), advertised_(false)
+DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh, bool auto_update)
+  : node_handle_(nh), advertised_(false), auto_update_(auto_update)
 {
   pub_config_timer_ =
       nh.createTimer(ros::Duration(5.0),
@@ -186,34 +186,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
 {
   ROS_DEBUG_STREAM("Called config callback of ddynamic_reconfigure");
 
-  for (unsigned int i = 0; i < req.config.ints.size(); ++i)
-  {
-    if (!assignValue(registered_int_, req.config.ints[i].name, req.config.ints[i].value))
-    {
-      ROS_ERROR_STREAM("Variable :" << req.config.ints[i].name << " not registered");
-    }
-  }
-  for (unsigned int i = 0; i < req.config.doubles.size(); ++i)
-  {
-    if (!assignValue(registered_double_, req.config.doubles[i].name, req.config.doubles[i].value))
-    {
-      ROS_ERROR_STREAM("Variable :" << req.config.doubles[i].name << " not registered");
-    }
-  }
-  for (unsigned int i = 0; i < req.config.bools.size(); ++i)
-  {
-    if (!assignValue(registered_bool_, req.config.bools[i].name, req.config.bools[i].value))
-    {
-      ROS_ERROR_STREAM("Variable :" << req.config.bools[i].name << " not registered");
-    }
-  }
-  for (unsigned int i = 0; i < req.config.strs.size(); ++i)
-  {
-    if (!assignValue(registered_string_, req.config.strs[i].name, req.config.strs[i].value))
-    {
-      ROS_ERROR_STREAM("Variable :" << req.config.strs[i].name << " not registered");
-    }
-  }
+  updateConfigData(req.config);
 
   /*
     boost::recursive_mutex::scoped_lock lock(mutex_);
@@ -264,6 +237,38 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
 
   pub_config_timer_.setPeriod(ros::Duration(5.0));
   return true;
+}
+
+void DDynamicReconfigure::updateConfigData(const dynamic_reconfigure::Config &config)
+{
+  for (unsigned int i = 0; i < config.ints.size(); ++i)
+  {
+    if (!assignValue(registered_int_, config.ints[i].name, config.ints[i].value))
+    {
+      ROS_ERROR_STREAM("Variable :" << config.ints[i].name << " not registered");
+    }
+  }
+  for (unsigned int i = 0; i < config.doubles.size(); ++i)
+  {
+    if (!assignValue(registered_double_, config.doubles[i].name, config.doubles[i].value))
+    {
+      ROS_ERROR_STREAM("Variable :" << config.doubles[i].name << " not registered");
+    }
+  }
+  for (unsigned int i = 0; i < config.bools.size(); ++i)
+  {
+    if (!assignValue(registered_bool_, config.bools[i].name, config.bools[i].value))
+    {
+      ROS_ERROR_STREAM("Variable :" << config.bools[i].name << " not registered");
+    }
+  }
+  for (unsigned int i = 0; i < config.strs.size(); ++i)
+  {
+    if (!assignValue(registered_string_, config.strs[i].name, config.strs[i].value))
+    {
+      ROS_ERROR_STREAM("Variable :" << config.strs[i].name << " not registered");
+    }
+  }
 }
 
 void DDynamicReconfigure::setUserCallback(const DDynamicReconfigure::UserCallbackType &callback)

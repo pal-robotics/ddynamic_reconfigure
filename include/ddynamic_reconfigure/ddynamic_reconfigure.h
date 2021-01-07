@@ -158,6 +158,8 @@ protected:
   virtual bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
                                  dynamic_reconfigure::Reconfigure::Response &rsp);
 
+  virtual void updateConfigData(const dynamic_reconfigure::Config &config);
+
   /**
    * @brief setUserCallback Set a function to be called when parameters have changed
    */
