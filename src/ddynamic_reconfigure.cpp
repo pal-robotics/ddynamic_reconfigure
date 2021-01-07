@@ -190,7 +190,32 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
 {
   ROS_DEBUG_STREAM("Called config callback of ddynamic_reconfigure");
 
-  updateConfigData(req.config);
+  if (auto_update_)
+  {
+    updateConfigData(req.config);
+  }
+  else
+  {
+    new_config_avail_ = true;
+    const ros::Time start_time = ros::Time::now();
+    const ros::Duration timeout = ros::Duration(2.0);
+    while ((ros::Time::now() - start_time) < timeout && !update_data_)
+    {
+      // Wait until the updateRegisteredVariablesData method is called by the user or
+      // until the timeout
+      ros::Duration(0.01).sleep();
+    }
+    if ((ros::Time::now() - start_time) > timeout)
+    {
+      update_data_ = false;
+      ROS_ERROR_STREAM(
+          "Timeout waiting to update the registered variable data! Registered Variable data update failed!");
+      return true;
+    }
+    updateConfigData(req.config);
+    new_config_avail_ = false;
+    update_data_ = false;
+  }
 
   /*
     boost::recursive_mutex::scoped_lock lock(mutex_);
