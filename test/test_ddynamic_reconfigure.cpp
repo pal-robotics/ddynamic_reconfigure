@@ -8,28 +8,23 @@ using ::testing::Exactly;
 
 using namespace ddynamic_reconfigure;
 
-namespace  pal
+namespace pal
 {
 class MockClass
 {
 public:
-  MockClass()
-    : double_param_(0.0), int_param_(0), bool_param_(false)
-  {}
-  MOCK_METHOD0(userCallback,
-               void());
-  
-  MOCK_METHOD1(strCallback,
-               void(std::string));
+  MockClass() : double_param_(0.0), int_param_(0), bool_param_(false)
+  {
+  }
+  MOCK_METHOD0(userCallback, void());
 
-  MOCK_METHOD1(doubleCallback,
-               void(double));
-  
-  MOCK_METHOD1(intCallback,
-               void(int));
-  
-  MOCK_METHOD1(boolCallback,
-               void(bool));
+  MOCK_METHOD1(strCallback, void(std::string));
+
+  MOCK_METHOD1(doubleCallback, void(double));
+
+  MOCK_METHOD1(intCallback, void(int));
+
+  MOCK_METHOD1(boolCallback, void(bool));
   std::string str_param_;
   double double_param_;
   int int_param_;
@@ -93,9 +88,7 @@ TEST_F(DDynamicReconfigureTest, globalCallbackTest)
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-  EXPECT_CALL(mock,
-              userCallback())
-      .Times(Exactly(1));
+  EXPECT_CALL(mock, userCallback()).Times(Exactly(1));
 
   dynamic_reconfigure::Reconfigure srv;
   dynamic_reconfigure::IntParameter int_param;
@@ -128,66 +121,13 @@ TEST_F(DDynamicReconfigureTest, callbackTest)
   DDynamicReconfigure dd(nh);
   MockClass mock;
   dd.registerVariable<int>("int_param", mock.int_param_,
-                      boost::bind(&MockClass::intCallback, &mock, _1));
+                           boost::bind(&MockClass::intCallback, &mock, _1));
   dd.registerVariable<double>("double_param", mock.double_param_,
-                      boost::bind(&MockClass::doubleCallback, &mock, _1));
+                              boost::bind(&MockClass::doubleCallback, &mock, _1));
   dd.registerVariable<bool>("bool_param", mock.bool_param_,
-                      boost::bind(&MockClass::boolCallback, &mock, _1));
+                            boost::bind(&MockClass::boolCallback, &mock, _1));
   dd.registerVariable<std::string>("str_param", mock.str_param_,
-                      boost::bind(&MockClass::strCallback, &mock, _1));
-    dd.PublishServicesTopics();
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
-  
-  dynamic_reconfigure::Reconfigure srv;
-  dynamic_reconfigure::IntParameter int_param;
-  int_param.name = "int_param";
-  int_param.value = -1234;
-
-  dynamic_reconfigure::DoubleParameter double_param;
-  double_param.name = "double_param";
-  double_param.value = 42.4242;
-  
-  dynamic_reconfigure::StrParameter str_param;
-  str_param.name = "str_param";
-  str_param.value = "hello";
-  
-  EXPECT_CALL(mock,
-              intCallback(int_param.value))
-      .Times(Exactly(2));
-  EXPECT_CALL(mock,
-              doubleCallback(double_param.value))
-      .Times(Exactly(1));  
-  EXPECT_CALL(mock,
-              boolCallback(_))
-      .Times(Exactly(0));
-  EXPECT_CALL(mock,
-              strCallback("hello"))
-      .Times(Exactly(1));
-  
-  srv.request.config.ints.push_back(int_param);
-  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
-  
-  
-  srv.request.config.doubles.push_back(double_param);
-  srv.request.config.strs.push_back(str_param);
-  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));  
-}
-
-
-TEST_F(DDynamicReconfigureTest, pointerCallbackTest)
-{
-  ros::NodeHandle nh("~");
-  DDynamicReconfigure dd(nh);
-  MockClass mock;
-  dd.registerVariable<int>("int_param", &mock.int_param_,
-                      boost::bind(&MockClass::intCallback, &mock, _1));
-  dd.registerVariable<double>("double_param", &mock.double_param_,
-                      boost::bind(&MockClass::doubleCallback, &mock, _1));
-  dd.registerVariable<bool>("bool_param", &mock.bool_param_,
-                      boost::bind(&MockClass::boolCallback, &mock, _1));
-  dd.registerVariable<std::string>("str_param", &mock.str_param_,
-                      boost::bind(&MockClass::strCallback, &mock, _1));
+                                   boost::bind(&MockClass::strCallback, &mock, _1));
   dd.PublishServicesTopics();
   ros::AsyncSpinner spinner(1);
   spinner.start();
@@ -205,18 +145,55 @@ TEST_F(DDynamicReconfigureTest, pointerCallbackTest)
   str_param.name = "str_param";
   str_param.value = "hello";
 
-  EXPECT_CALL(mock,
-              intCallback(int_param.value))
-      .Times(Exactly(2));
-  EXPECT_CALL(mock,
-              doubleCallback(double_param.value))
-      .Times(Exactly(1));
-  EXPECT_CALL(mock,
-              boolCallback(_))
-      .Times(Exactly(0));
-  EXPECT_CALL(mock,
-              strCallback("hello"))
-      .Times(Exactly(1));
+  EXPECT_CALL(mock, intCallback(int_param.value)).Times(Exactly(2));
+  EXPECT_CALL(mock, doubleCallback(double_param.value)).Times(Exactly(1));
+  EXPECT_CALL(mock, boolCallback(_)).Times(Exactly(0));
+  EXPECT_CALL(mock, strCallback("hello")).Times(Exactly(1));
+
+  srv.request.config.ints.push_back(int_param);
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+
+
+  srv.request.config.doubles.push_back(double_param);
+  srv.request.config.strs.push_back(str_param);
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+}
+
+
+TEST_F(DDynamicReconfigureTest, pointerCallbackTest)
+{
+  ros::NodeHandle nh("~");
+  DDynamicReconfigure dd(nh);
+  MockClass mock;
+  dd.registerVariable<int>("int_param", &mock.int_param_,
+                           boost::bind(&MockClass::intCallback, &mock, _1));
+  dd.registerVariable<double>("double_param", &mock.double_param_,
+                              boost::bind(&MockClass::doubleCallback, &mock, _1));
+  dd.registerVariable<bool>("bool_param", &mock.bool_param_,
+                            boost::bind(&MockClass::boolCallback, &mock, _1));
+  dd.registerVariable<std::string>("str_param", &mock.str_param_,
+                                   boost::bind(&MockClass::strCallback, &mock, _1));
+  dd.PublishServicesTopics();
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+
+  dynamic_reconfigure::Reconfigure srv;
+  dynamic_reconfigure::IntParameter int_param;
+  int_param.name = "int_param";
+  int_param.value = -1234;
+
+  dynamic_reconfigure::DoubleParameter double_param;
+  double_param.name = "double_param";
+  double_param.value = 42.4242;
+
+  dynamic_reconfigure::StrParameter str_param;
+  str_param.name = "str_param";
+  str_param.value = "hello";
+
+  EXPECT_CALL(mock, intCallback(int_param.value)).Times(Exactly(2));
+  EXPECT_CALL(mock, doubleCallback(double_param.value)).Times(Exactly(1));
+  EXPECT_CALL(mock, boolCallback(_)).Times(Exactly(0));
+  EXPECT_CALL(mock, strCallback("hello")).Times(Exactly(1));
 
   srv.request.config.ints.push_back(int_param);
   EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
@@ -245,9 +222,9 @@ TEST_F(DDynamicReconfigureTest, threadTest)
   dd.registerVariable("second_str_param", &second_str_param, "");
   dd.registerVariable("bool_param", &bool_param, "");
   dd.PublishServicesTopics();
-  
-  ros::Subscriber sub =
-      nh.subscribe<dynamic_reconfigure::Config>("/foo/parameter_updates", 1, boost::bind(&DDynamicReconfigureTest::cfgCb, this, _1));
+
+  ros::Subscriber sub = nh.subscribe<dynamic_reconfigure::Config>(
+      "/foo/parameter_updates", 1, boost::bind(&DDynamicReconfigureTest::cfgCb, this, _1));
 
   waitForCfg();
 
@@ -259,7 +236,8 @@ TEST_F(DDynamicReconfigureTest, threadTest)
   ASSERT_EQ(double_param, cfg_msg_->doubles[0].value);
   ASSERT_EQ(2, cfg_msg_->strs.size());
   ASSERT_EQ("str_param", cfg_msg_->strs[0].name);
-  ASSERT_EQ(str_param, cfg_msg_->strs[0].value);;
+  ASSERT_EQ(str_param, cfg_msg_->strs[0].value);
+  ;
   ASSERT_EQ("second_str_param", cfg_msg_->strs[1].name);
   ASSERT_EQ(second_str_param, cfg_msg_->strs[1].value);
   ASSERT_EQ(1, cfg_msg_->bools.size());
@@ -270,7 +248,7 @@ TEST_F(DDynamicReconfigureTest, threadTest)
   double_param = 1e-3;
   str_param = "changed";
   bool_param = true;
-  
+
   waitForCfg();
   ASSERT_EQ(1, cfg_msg_->ints.size());
   ASSERT_EQ("int_param", cfg_msg_->ints[0].name);
@@ -280,7 +258,8 @@ TEST_F(DDynamicReconfigureTest, threadTest)
   ASSERT_EQ(double_param, cfg_msg_->doubles[0].value);
   ASSERT_EQ(2, cfg_msg_->strs.size());
   ASSERT_EQ("str_param", cfg_msg_->strs[0].name);
-  ASSERT_EQ(str_param, cfg_msg_->strs[0].value);;
+  ASSERT_EQ(str_param, cfg_msg_->strs[0].value);
+  ;
   ASSERT_EQ("second_str_param", cfg_msg_->strs[1].name);
   ASSERT_EQ(second_str_param, cfg_msg_->strs[1].value);
   ASSERT_EQ(1, cfg_msg_->bools.size());

@@ -26,4 +26,3 @@ int main(int argc, char **argv)
     ros::Duration(0.1).sleep();
   }
 }
-
