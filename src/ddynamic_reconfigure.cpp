@@ -495,6 +495,20 @@ void DDynamicReconfigure::PublishServicesTopics()
   publishServicesTopics();
 }
 
+void DDynamicReconfigure::updateRegisteredVariablesData()
+{
+  if (!new_config_avail_ || auto_update_)
+    return;
+  update_data_ = true;
+  const ros::Time start_time = ros::Time::now();
+  const ros::Duration timeout = ros::Duration(2.5);
+  while ((ros::Time::now() - start_time) < timeout && new_config_avail_)
+  {
+    // Wait until the variables are properly updated or until the timeout
+    ros::Duration(0.01).sleep();
+  }
+}
+
 
 // Explicit int instantations
 template void DDynamicReconfigure::registerVariable(const std::string &name, int *variable,

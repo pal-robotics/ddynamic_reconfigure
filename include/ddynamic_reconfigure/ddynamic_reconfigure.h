@@ -53,7 +53,9 @@ public:
   /**
     * @param nh the queue associated to this nh should spined() somewhere else
     * @param auto_update - Update the variable information immediately on change by
-    * service call. When it is true, it is not RT and Thread Safe
+    * service call. When it is true, it is not RT and Thread Safe. In case it is set to
+    * False, updateRegisteredVariablesData method needs to be called to update the
+    * registered variables
     */
   DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"), bool auto_update = true);
 
@@ -148,6 +150,12 @@ public:
   virtual void RegisterVariable(bool *variable, std::string id);
 
   virtual void PublishServicesTopics();
+
+  /**
+   * @brief updateRegisteredVariablesData - Method to be called to update the registered
+   * variable incase the manual update is choosen
+   */
+  virtual void updateRegisteredVariablesData();
 
 protected:
   template <typename T>
