@@ -3,7 +3,11 @@
 namespace ddynamic_reconfigure
 {
 DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh, bool auto_update)
-  : node_handle_(nh), advertised_(false), auto_update_(auto_update)
+  : node_handle_(nh)
+  , advertised_(false)
+  , auto_update_(auto_update)
+  , update_data_(false)
+  , new_config_avail_(false)
 {
   pub_config_timer_ =
       nh.createTimer(ros::Duration(5.0),

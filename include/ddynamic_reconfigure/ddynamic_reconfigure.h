@@ -52,8 +52,10 @@ class DDynamicReconfigure
 public:
   /**
     * @param nh the queue associated to this nh should spined() somewhere else
+    * @param auto_update - Update the variable information immediately on change by
+    * service call. When it is true, it is not RT and Thread Safe
     */
-  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
+  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"), bool auto_update = true);
 
   virtual ~DDynamicReconfigure();
 
@@ -170,6 +172,8 @@ protected:
   ros::Publisher descr_pub_;
 
   bool advertised_;
+  bool auto_update_;
+  std::atomic_bool update_data_, new_config_avail_;
 
   // Registered variables
   std::vector<std::unique_ptr<RegisteredParam<int>>> registered_int_;
