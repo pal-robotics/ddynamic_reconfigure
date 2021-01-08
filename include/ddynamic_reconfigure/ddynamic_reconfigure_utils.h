@@ -71,7 +71,7 @@ inline std::string getMax()
 
 
 template <class T, class V>
-bool assignValue(std::vector<T> &v, std::string name, V value)
+bool assignValue(std::vector<T> &v, const std::string &name, V value)
 {
   for (unsigned int i = 0; i < v.size(); ++i)
   {
