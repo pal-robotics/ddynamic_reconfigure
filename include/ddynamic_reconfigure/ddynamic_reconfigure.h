@@ -52,8 +52,8 @@ class DDynamicReconfigure
 public:
   /**
     * @param nh the queue associated to this nh should spined() somewhere else
-    * @param auto_update - Update the variable information immediately on change by
-    * service call. When it is true, it is not RT and Thread Safe. In case it is set to
+    * @param auto_update - Update the variable values immediately on change by
+    * service call. When it is true, it is not Thread Safe. In case it is set to
     * False, updateRegisteredVariablesData method needs to be called to update the
     * registered variables
     */
@@ -153,7 +153,7 @@ public:
 
   /**
    * @brief updateRegisteredVariablesData - Method to be called to update the registered
-   * variable incase the manual update is choosen
+   * variable, incase the auto_update is not choosen
    */
   virtual void updateRegisteredVariablesData();
 
@@ -181,6 +181,7 @@ protected:
 
   bool advertised_;
   bool auto_update_;
+
   std::atomic_bool update_data_, new_config_avail_;
 
   // Registered variables
