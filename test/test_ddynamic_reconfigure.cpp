@@ -72,6 +72,7 @@ TEST_F(DDynamicReconfigureTest, basicTest)
   srv.request.config.ints.push_back(int_param);
   // This callback willnot block and does nothing, incase it is an auto_update case
   dd.updateRegisteredVariablesData();
+  EXPECT_EQ(0, mock.int_param_);
   EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
   EXPECT_EQ(mock.int_param_, int_param.value);
 }
@@ -99,26 +100,22 @@ TEST_F(DDynamicReconfigureTest, basicManualUpdateTest)
   ros::Duration(3.0).sleep();
   EXPECT_EQ(mock.int_param_, 0);
 
-  auto updateMethod = std::async(std::launch::deferred,
-                                 &DDynamicReconfigure::updateRegisteredVariablesData, &dd);
   auto config = std::async([&nh, &srv]() {
     EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
   });
   // Now wait for 1 sec and then call updateRegisteredVariablesData to update the data of
   // the variable
   ros::Duration(1.0).sleep();
-  updateMethod.wait();
+  dd.updateRegisteredVariablesData();
   EXPECT_EQ(mock.int_param_, int_param.value);
 
   srv.request.config.ints.back().value = 3214;
-  updateMethod = std::async(std::launch::deferred,
-                            &DDynamicReconfigure::updateRegisteredVariablesData, &dd);
   config = std::async([&nh, &srv]() {
     EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
   });
   // Now call updateRegisteredVariablesData to update the data of the variable
   ros::Duration(0.1).sleep();
-  updateMethod.wait();
+  dd.updateRegisteredVariablesData();
   EXPECT_EQ(mock.int_param_, srv.request.config.ints.back().value);
 }
 
