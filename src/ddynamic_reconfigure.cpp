@@ -3,11 +3,7 @@
 namespace ddynamic_reconfigure
 {
 DDynamicReconfigure::DDynamicReconfigure(const ros::NodeHandle &nh, bool auto_update)
-  : node_handle_(nh)
-  , advertised_(false)
-  , auto_update_(auto_update)
-  , update_data_(false)
-  , new_config_avail_(false)
+  : node_handle_(nh), advertised_(false), auto_update_(auto_update), new_config_avail_(false)
 {
   pub_config_timer_ =
       nh.createTimer(ros::Duration(5.0),
@@ -190,16 +186,17 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
 {
   ROS_DEBUG_STREAM("Called config callback of ddynamic_reconfigure");
 
+  updated_config_ = req.config;
   if (auto_update_)
   {
-    updateConfigData(req.config);
+    updateConfigData(updated_config_);
   }
   else
   {
     new_config_avail_ = true;
     const ros::Time start_time = ros::Time::now();
     const ros::Duration timeout = ros::Duration(2.0);
-    while ((ros::Time::now() - start_time) < timeout && !update_data_)
+    while ((ros::Time::now() - start_time) < timeout && new_config_avail_)
     {
       // Wait until the updateRegisteredVariablesData method is called by the user or
       // until the timeout
@@ -207,14 +204,10 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
     }
     if ((ros::Time::now() - start_time) > timeout)
     {
-      update_data_ = false;
       ROS_ERROR_STREAM(
           "Timeout waiting to update the registered variable data! Registered Variable data update failed!");
       return true;
     }
-    updateConfigData(req.config);
-    new_config_avail_ = false;
-    update_data_ = false;
   }
 
   /*
@@ -499,14 +492,8 @@ void DDynamicReconfigure::updateRegisteredVariablesData()
 {
   if (!new_config_avail_ || auto_update_)
     return;
-  update_data_ = true;
-  const ros::Time start_time = ros::Time::now();
-  const ros::Duration timeout = ros::Duration(2.5);
-  while ((ros::Time::now() - start_time) < timeout && new_config_avail_)
-  {
-    // Wait until the variables are properly updated or until the timeout
-    ros::Duration(0.01).sleep();
-  }
+  updateConfigData(updated_config_);
+  new_config_avail_ = false;
 }
 
 

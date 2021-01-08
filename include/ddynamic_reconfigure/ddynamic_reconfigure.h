@@ -182,7 +182,7 @@ protected:
   bool advertised_;
   bool auto_update_;
 
-  std::atomic_bool update_data_, new_config_avail_;
+  std::atomic_bool new_config_avail_;
 
   // Registered variables
   std::vector<std::unique_ptr<RegisteredParam<int>>> registered_int_;
@@ -195,6 +195,7 @@ protected:
 
   ros::Timer pub_config_timer_;
   dynamic_reconfigure::Config last_config_;
+  dynamic_reconfigure::Config updated_config_;
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
