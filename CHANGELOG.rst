@@ -2,6 +2,28 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'cosmetic_fixes' into 'erbium-devel'
+  update clang format styling
+  See merge request control/ddynamic_reconfigure!17
+* Merge branch 'rt_thread_safe' into 'cosmetic_fixes'
+  Rt thread safe
+  See merge request control/ddynamic_reconfigure!18
+* update assignValue method to pass every arg by const reference
+* remove the deferred async from tests
+* fix to update the configuration data proper way
+* minor fixes to the method documentation
+* update assignValue function to pass string by const reference
+* Added tests for the manual update of registered variables data
+* Added updateRegisteredVariablesData method to update the registered variables
+* Don't update the config if manual update is chosen
+* added auto_update option to the constructor
+* added updateConfigData method
+* changed the methods to be virtual
+* update clang format styling
+* Contributors: Sai Kishor Kothakota, victor
+
 0.3.2 (2020-10-27)
 ------------------
 * Merge branch 'pointer-with-callback' into 'erbium-devel'
