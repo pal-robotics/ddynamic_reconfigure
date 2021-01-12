@@ -71,7 +71,7 @@ inline std::string getMax()
 
 
 template <class T, class V>
-bool assignValue(std::vector<T> &v, std::string name, V value)
+bool assignValue(const std::vector<T> &v, const std::string &name, const V &value)
 {
   for (unsigned int i = 0; i < v.size(); ++i)
   {
@@ -100,19 +100,19 @@ std::pair<T, T> getMinMax(const std::map<std::string, T> &enum_map)
   {
     throw std::runtime_error("Trying to register an empty enum");
   }
-  
+
   min = enum_map.begin()->second;
   max = enum_map.begin()->second;
-  
+
   for (const auto &it : enum_map)
   {
     min = std::min(min, it.second);
     max = std::max(min, it.second);
   }
-  
+
   return std::make_pair(min, max);
 }
 
 
 
-#endif // DDYNAMIC_RECONFIGURE_UTILS_H
+#endif  // DDYNAMIC_RECONFIGURE_UTILS_H

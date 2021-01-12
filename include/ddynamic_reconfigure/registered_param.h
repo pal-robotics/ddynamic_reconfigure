@@ -36,8 +36,8 @@
 #include <type_traits>
 #include <boost/function.hpp>
 #include <dynamic_reconfigure/ParamDescription.h>
-namespace ddynamic_reconfigure {
-   
+namespace ddynamic_reconfigure
+{
 template <typename T>
 class RegisteredParam
 {
@@ -54,47 +54,48 @@ public:
     , group_(group)
   {
   }
-  
+
   virtual ~RegisteredParam()
-  {}
+  {
+  }
 
   virtual T getCurrentValue() const = 0;
   virtual void updateValue(T new_value) = 0;
-  
+
   std::string getTypeName() const
   {
-   if (std::is_same<T, int>::value)
-   {
-    return "int";
-   }
-   else if (std::is_same<T, double>::value)
-   {
-    return "double";
-   }
-   else if (std::is_same<T, bool>::value)
-   {
-    return "bool";
-   }
-   else if (std::is_same<T, std::string>::value)
-   {
-    return "str";
-   }
-   throw std::runtime_error("Unexpected type for param " + name_);
+    if (std::is_same<T, int>::value)
+    {
+      return "int";
+    }
+    else if (std::is_same<T, double>::value)
+    {
+      return "double";
+    }
+    else if (std::is_same<T, bool>::value)
+    {
+      return "bool";
+    }
+    else if (std::is_same<T, std::string>::value)
+    {
+      return "str";
+    }
+    throw std::runtime_error("Unexpected type for param " + name_);
   }
-  
+
   std::string getValueString(T value) const
   {
-   std::stringstream ss;
-   ss << value;
-   
-   if (std::is_same<T, std::string>::value)
-   {
-    return "'" + ss.str() + "'";
-   }
-   return ss.str();
+    std::stringstream ss;
+    ss << value;
+
+    if (std::is_same<T, std::string>::value)
+    {
+      return "'" + ss.str() + "'";
+    }
+    return ss.str();
   }
-  
-  virtual dynamic_reconfigure::ParamDescription getParamDescription() const 
+
+  virtual dynamic_reconfigure::ParamDescription getParamDescription() const
   {
     dynamic_reconfigure::ParamDescription p;
     p.name = name_;
@@ -169,8 +170,10 @@ public:
                          boost::function<void(T value)> callback = {},
                          std::map<std::string, T> enum_dictionary = {},
                          const std::string &enum_description = "", const std::string &group = "")
-    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description, group)
-    , variable_(variable), callback_(callback)
+    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary,
+                         enum_description, group)
+    , variable_(variable)
+    , callback_(callback)
   {
   }
 
@@ -196,9 +199,11 @@ class CallbackRegisteredParam : public RegisteredParam<T>
 public:
   CallbackRegisteredParam(const std::string &name, const std::string &description, T min_value,
                           T max_value, T current_value, boost::function<void(T value)> callback,
-                          std::map<std::string, T> enum_dictionary = {}, 
-                          const std::string &enum_description = "", const std::string &group = "")
-    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary, enum_description, group)
+                          std::map<std::string, T> enum_dictionary = {},
+                          const std::string &enum_description = "",
+                          const std::string &group = "")
+    : RegisteredParam<T>(name, description, min_value, max_value, enum_dictionary,
+                         enum_description, group)
     , current_value_(current_value)
     , callback_(callback)
   {
@@ -208,7 +213,7 @@ public:
   {
     return current_value_;
   }
-  
+
   void updateValue(T new_value) override
   {
     callback_(new_value);
@@ -221,6 +226,6 @@ protected:
 };
 
 
-} // namespace ddynamic_reconfigure
+}  // namespace ddynamic_reconfigure
 
-#endif // REGISTERED_PARAM_H
+#endif  // REGISTERED_PARAM_H
