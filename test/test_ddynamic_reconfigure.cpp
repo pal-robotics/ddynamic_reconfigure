@@ -1,5 +1,6 @@
 #include <ddynamic_reconfigure/ddynamic_reconfigure.h>
 #include <gmock/gmock.h>
+#include <future>
 #include <dynamic_reconfigure/Reconfigure.h>
 
 using ::testing::_;
@@ -69,8 +70,53 @@ TEST_F(DDynamicReconfigureTest, basicTest)
   int_param.value = 1234;
 
   srv.request.config.ints.push_back(int_param);
+  // This callback willnot block and does nothing, incase it is an auto_update case
+  dd.updateRegisteredVariablesData();
+  EXPECT_EQ(0, mock.int_param_);
   EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
   EXPECT_EQ(mock.int_param_, int_param.value);
+}
+
+TEST_F(DDynamicReconfigureTest, basicManualUpdateTest)
+{
+  ros::NodeHandle nh("~");
+  DDynamicReconfigure dd(nh, false);
+  MockClass mock;
+  mock.int_param_ = 0;
+  dd.RegisterVariable(&mock.int_param_, "int_param", -10000, 10000);
+
+  dd.PublishServicesTopics();
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+
+  dynamic_reconfigure::Reconfigure srv;
+  dynamic_reconfigure::IntParameter int_param;
+  int_param.name = "int_param";
+  int_param.value = 1234;
+
+  srv.request.config.ints.push_back(int_param);
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  // Wait more than the timeout and see that the variable is not updated
+  ros::Duration(3.0).sleep();
+  EXPECT_EQ(mock.int_param_, 0);
+
+  auto config = std::async([&nh, &srv]() {
+    EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  });
+  // Now wait for 1 sec and then call updateRegisteredVariablesData to update the data of
+  // the variable
+  ros::Duration(1.0).sleep();
+  dd.updateRegisteredVariablesData();
+  EXPECT_EQ(mock.int_param_, int_param.value);
+
+  srv.request.config.ints.back().value = 3214;
+  config = std::async([&nh, &srv]() {
+    EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  });
+  // Now call updateRegisteredVariablesData to update the data of the variable
+  ros::Duration(0.1).sleep();
+  dd.updateRegisteredVariablesData();
+  EXPECT_EQ(mock.int_param_, srv.request.config.ints.back().value);
 }
 
 TEST_F(DDynamicReconfigureTest, globalCallbackTest)

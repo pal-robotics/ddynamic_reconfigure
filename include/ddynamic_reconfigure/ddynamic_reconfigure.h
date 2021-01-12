@@ -52,8 +52,12 @@ class DDynamicReconfigure
 public:
   /**
     * @param nh the queue associated to this nh should spined() somewhere else
+    * @param auto_update - Update the variable values immediately on change by
+    * service call. When it is true, it is not Thread Safe. In case it is set to
+    * False, updateRegisteredVariablesData method needs to be called to update the
+    * registered variables
     */
-  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"));
+  DDynamicReconfigure(const ros::NodeHandle &nh = ros::NodeHandle("~"), bool auto_update = true);
 
   virtual ~DDynamicReconfigure();
 
@@ -119,9 +123,9 @@ public:
    * @brief publishServicesTopics starts the server once all the needed variables are
    * registered
    */
-  void publishServicesTopics();
+  virtual void publishServicesTopics();
 
-  void updatePublishedInformation();
+  virtual void updatePublishedInformation();
 
   typedef boost::function<void()> UserCallbackType;
 
@@ -129,33 +133,42 @@ public:
    * @brief setUserCallback An optional callback that will be called whenever a value is
    * changed
    */
-  void setUserCallback(const UserCallbackType &callback);
+  virtual void setUserCallback(const UserCallbackType &callback);
 
-  void clearUserCallback();
+  virtual void clearUserCallback();
 
 
   /**
    * Deprecated functions. For backwards compatibility, cannot be a template for legacy
    * reasons
    */
-  void RegisterVariable(double *variable, std::string id, double min = -100, double max = 100);
+  virtual void RegisterVariable(double *variable, std::string id, double min = -100,
+                                double max = 100);
 
-  void RegisterVariable(int *variable, std::string id, int min = -100, int max = 100);
+  virtual void RegisterVariable(int *variable, std::string id, int min = -100, int max = 100);
 
-  void RegisterVariable(bool *variable, std::string id);
+  virtual void RegisterVariable(bool *variable, std::string id);
 
-  void PublishServicesTopics();
+  virtual void PublishServicesTopics();
 
-private:
+  /**
+   * @brief updateRegisteredVariablesData - Method to be called to update the registered
+   * variable, incase the auto_update is not choosen
+   */
+  virtual void updateRegisteredVariablesData();
+
+protected:
   template <typename T>
   std::vector<std::unique_ptr<RegisteredParam<T>>> &getRegisteredVector();
 
-  dynamic_reconfigure::ConfigDescription generateConfigDescription() const;
+  virtual dynamic_reconfigure::ConfigDescription generateConfigDescription() const;
 
-  dynamic_reconfigure::Config generateConfig();
+  virtual dynamic_reconfigure::Config generateConfig();
 
-  bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
-                         dynamic_reconfigure::Reconfigure::Response &rsp);
+  virtual bool setConfigCallback(dynamic_reconfigure::Reconfigure::Request &req,
+                                 dynamic_reconfigure::Reconfigure::Response &rsp);
+
+  virtual void updateConfigData(const dynamic_reconfigure::Config &config);
 
   /**
    * @brief setUserCallback Set a function to be called when parameters have changed
@@ -167,6 +180,9 @@ private:
   ros::Publisher descr_pub_;
 
   bool advertised_;
+  bool auto_update_;
+
+  std::atomic_bool new_config_avail_;
 
   // Registered variables
   std::vector<std::unique_ptr<RegisteredParam<int>>> registered_int_;
@@ -179,6 +195,7 @@ private:
 
   ros::Timer pub_config_timer_;
   dynamic_reconfigure::Config last_config_;
+  dynamic_reconfigure::Config updated_config_;
 };
 
 typedef boost::shared_ptr<DDynamicReconfigure> DDynamicReconfigurePtr;
