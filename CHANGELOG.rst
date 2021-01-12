@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2021-01-12)
+------------------
 * Merge branch 'cosmetic_fixes' into 'erbium-devel'
   update clang format styling
   See merge request control/ddynamic_reconfigure!17
