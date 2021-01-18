@@ -2,8 +2,8 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2021-01-18)
+------------------
 * Merge branch 'atomic-fix' into 'erbium-devel'
   Fix missing atomic header
   See merge request control/ddynamic_reconfigure!19
