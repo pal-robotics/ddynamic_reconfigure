@@ -4,6 +4,10 @@ The ddynamic_reconfigure package is a C++ extension of [dynamic_reconfigure](htt
 
 ## Usage
 
+This package requires at least C++11.
+If you have cmake version at least 3.1 the easiest way to do it is:
+`set (CMAKE_CXX_STANDARD 11)`
+
 Modifying in place a variable:
 ```cpp
 #include <ros/ros.h>
@@ -125,6 +129,7 @@ int main(int argc, char **argv) {
 ### Undefined reference to registerVariable or registerEnumVariable
 
 These methods are templated, but the implementation is hidden, and there are explicit template instantiations for `int`, `bool`, `double` and `std::string`. If you are getting an undefined reference to one of these methods, make sure that you are passing parameters of this type.
+
 
 
 
