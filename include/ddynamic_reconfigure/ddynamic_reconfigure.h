@@ -37,6 +37,7 @@
 #include <ros/ros.h>
 #include <ros/callback_queue.h>
 #include <ros/spinner.h>
+#include <atomic>
 
 namespace ddynamic_reconfigure
 {
