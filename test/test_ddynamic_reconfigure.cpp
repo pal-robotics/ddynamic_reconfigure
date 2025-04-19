@@ -17,7 +17,8 @@ public:
   MockClass() : double_param_(0.0), int_param_(0), bool_param_(false)
   {
   }
-  MOCK_METHOD0(userCallback, void());
+  MOCK_METHOD0(preUpdateCallback, void());
+  MOCK_METHOD0(postUpdateCallback, void());
 
   MOCK_METHOD1(strCallback, void(std::string));
 
@@ -129,12 +130,14 @@ TEST_F(DDynamicReconfigureTest, globalCallbackTest)
   dd.RegisterVariable(&mock.int_param_, "int_param", 0, 100);
   dd.RegisterVariable(&mock.bool_param_, "bool_param");
   dd.RegisterVariable(&mock.double_param_, "double_param", -50, 50);
-  dd.setUserCallback(boost::bind(&MockClass::userCallback, &mock));
+  dd.setPreUpdateCallback(boost::bind(&MockClass::preUpdateCallback, &mock));
+  dd.setPostUpdateCallback(boost::bind(&MockClass::postUpdateCallback, &mock));
   dd.PublishServicesTopics();
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
-  EXPECT_CALL(mock, userCallback()).Times(Exactly(1));
+  EXPECT_CALL(mock, preUpdateCallback()).Times(Exactly(1));
+  EXPECT_CALL(mock, postUpdateCallback()).Times(Exactly(1));
 
   dynamic_reconfigure::Reconfigure srv;
   dynamic_reconfigure::IntParameter int_param;
