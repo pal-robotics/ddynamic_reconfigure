@@ -6,7 +6,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 catkin_package(
