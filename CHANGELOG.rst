@@ -2,6 +2,12 @@
 Changelog for package ddynamic_reconfigure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* advertise services/topics only once (#29)
+* Add pre and post update Callback Function Triggers to Parameter Update Process (#28)
+* Contributors: Yuki Furuta
+
 0.4.1 (2021-01-18)
 ------------------
 * Merge branch 'atomic-fix' into 'erbium-devel'
