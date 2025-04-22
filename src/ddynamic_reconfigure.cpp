@@ -186,6 +186,22 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
 {
   ROS_DEBUG_STREAM("Called config callback of ddynamic_reconfigure");
 
+  if (pre_update_callback_)
+  {
+    try
+    {
+      pre_update_callback_();
+    }
+    catch (std::exception &e)
+    {
+      ROS_WARN("Reconfigure pre update callback failed with exception %s: ", e.what());
+    }
+    catch (...)
+    {
+      ROS_WARN("Reconfigure pre update callback failed with unprintable exception.");
+    }
+  }
+
   updated_config_ = req.config;
   if (auto_update_)
   {
@@ -237,19 +253,19 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
      */
   // std::cerr<<req.config<<std::endl;
 
-  if (user_callback_)
+  if (post_update_callback_)
   {
     try
     {
-      user_callback_();
+      post_update_callback_();
     }
     catch (std::exception &e)
     {
-      ROS_WARN("Reconfigure callback failed with exception %s: ", e.what());
+      ROS_WARN("Reconfigure post update callback failed with exception %s: ", e.what());
     }
     catch (...)
     {
-      ROS_WARN("Reconfigure callback failed with unprintable exception.");
+      ROS_WARN("Reconfigure post update callback failed with unprintable exception.");
     }
   }
 
@@ -295,12 +311,32 @@ void DDynamicReconfigure::updateConfigData(const dynamic_reconfigure::Config &co
 
 void DDynamicReconfigure::setUserCallback(const DDynamicReconfigure::UserCallbackType &callback)
 {
-  user_callback_ = callback;
+  setPostUpdateCallback(callback);
 }
 
 void DDynamicReconfigure::clearUserCallback()
 {
-  user_callback_.clear();
+  clearPostUpdateCallback();
+}
+
+void DDynamicReconfigure::setPreUpdateCallback(const DDynamicReconfigure::UserCallbackType &callback)
+{
+  pre_update_callback_ = callback;
+}
+
+void DDynamicReconfigure::clearPreUpdateCallback()
+{
+  pre_update_callback_.clear();
+}
+
+void DDynamicReconfigure::setPostUpdateCallback(const DDynamicReconfigure::UserCallbackType &callback)
+{
+  post_update_callback_ = callback;
+}
+
+void DDynamicReconfigure::clearPostUpdateCallback()
+{
+  post_update_callback_.clear();
 }
 
 void DDynamicReconfigure::RegisterVariable(double *variable, std::string id, double min, double max)

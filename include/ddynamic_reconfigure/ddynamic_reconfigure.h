@@ -131,18 +131,34 @@ public:
   typedef boost::function<void()> UserCallbackType;
 
   /**
-   * @brief setUserCallback An optional callback that will be called whenever a value is
+   * @brief setPreUpdateCallback An optional callback that will be called right before any value is
    * changed
    */
-  virtual void setUserCallback(const UserCallbackType &callback);
+  virtual void setPreUpdateCallback(const UserCallbackType &callback);
 
-  virtual void clearUserCallback();
+  virtual void clearPreUpdateCallback();
 
+  /**
+   * @brief setPostUpdateCallback An optional callback that will be called right after any value is
+   * changed.
+   */
+  virtual void setPostUpdateCallback(const UserCallbackType &callback);
+
+  virtual void clearPostUpdateCallback();
 
   /**
    * Deprecated functions. For backwards compatibility, cannot be a template for legacy
    * reasons
    */
+
+  /**
+   * @brief setUserCallback An optional callback that will be called whenever a value is
+   * changed. This is equivalent to the setPostUpdateCallback.
+   */
+  virtual void setUserCallback(const UserCallbackType &callback);
+
+  virtual void clearUserCallback();
+
   virtual void RegisterVariable(double *variable, std::string id, double min = -100,
                                 double max = 100);
 
@@ -192,7 +208,8 @@ protected:
   std::vector<std::unique_ptr<RegisteredParam<std::string>>> registered_string_;
   std::vector<std::string> config_groups_;
 
-  UserCallbackType user_callback_;
+  UserCallbackType pre_update_callback_;
+  UserCallbackType post_update_callback_;
 
   ros::Timer pub_config_timer_;
   dynamic_reconfigure::Config last_config_;
