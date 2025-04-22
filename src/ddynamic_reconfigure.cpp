@@ -19,6 +19,10 @@ DDynamicReconfigure::~DDynamicReconfigure()
 
 void DDynamicReconfigure::publishServicesTopics()
 {
+  if (advertised_)
+  {
+    return;
+  }
   descr_pub_ = node_handle_.advertise<dynamic_reconfigure::ConfigDescription>(
       "parameter_descriptions", 1, true);
   const dynamic_reconfigure::ConfigDescription config_description = generateConfigDescription();
