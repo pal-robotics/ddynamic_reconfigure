@@ -94,7 +94,22 @@ void DDynamicReconfigure::registerVariable(const std::string &name, T *variable,
                                            const std::string &description, T min, T max,
                                            const std::string &group)
 {
+  const T initial_variable = *variable;
   attemptGetParam(node_handle_, name, *variable, *variable);
+  if (initial_variable != *variable && callback)
+  {
+    callPreUpdateCallback();
+    try
+    {
+      callback(*variable);
+    }
+    catch (const CallbackException &e)
+    {
+      ROS_ERROR("Error in callback: %s", e.what());
+      *variable = initial_variable;
+    }
+    callPostUpdateCallback();
+  }
   getRegisteredVector<T>().push_back(boost::make_unique<PointerRegisteredParam<T>>(
       name, description, min, max, variable, callback, std::map<std::string, T>(), "", group));
 }
@@ -107,9 +122,24 @@ void DDynamicReconfigure::registerEnumVariable(const std::string &name, T *varia
                                                const std::string &enum_description,
                                                const std::string &group)
 {
+  const T initial_variable = *variable;
+  attemptGetParam(node_handle_, name, *variable, *variable);
+  if (initial_variable != *variable && callback)
+  {
+    callPreUpdateCallback();
+    try
+    {
+      callback(*variable);
+    }
+    catch (const CallbackException& e)
+    {
+      ROS_WARN("Error in callback: %s", e.what());
+      *variable = initial_variable;
+    }
+    callPostUpdateCallback();
+  }
   T min, max;
   std::tie(min, max) = getMinMax(enum_dict);
-  attemptGetParam(node_handle_, name, *variable, *variable);
   getRegisteredVector<T>().push_back(boost::make_unique<PointerRegisteredParam<T>>(
       name, description, min, max, variable, callback, enum_dict, enum_description, group));
 }
@@ -120,7 +150,22 @@ void DDynamicReconfigure::registerVariable(const std::string &name, T current_va
                                            const std::string &description, T min, T max,
                                            const std::string &group)
 {
+  const T initial_value = current_value;
   attemptGetParam(node_handle_, name, current_value, current_value);
+  if (initial_value != current_value && callback)
+  {
+    callPreUpdateCallback();
+    try
+    {
+      callback(current_value);
+    }
+    catch (const CallbackException& e)
+    {
+      ROS_ERROR("Error in callback: %s", e.what());
+      current_value = initial_value;
+    }
+    callPostUpdateCallback();
+  }
   getRegisteredVector<T>().push_back(boost::make_unique<CallbackRegisteredParam<T>>(
       name, description, min, max, current_value, callback, std::map<std::string, T>(), "", group));
 }
@@ -134,9 +179,24 @@ void DDynamicReconfigure::registerEnumVariable(const std::string &name, T curren
                                                const std::string &enum_description,
                                                const std::string &group)
 {
+  const T initial_value = current_value;
   T min, max;
   std::tie(min, max) = getMinMax(enum_dict);
   attemptGetParam(node_handle_, name, current_value, current_value);
+  if (initial_value != current_value && callback)
+  {
+    callPreUpdateCallback();
+    try
+    {
+      callback(current_value);
+    }
+    catch (const CallbackException& e)
+    {
+      ROS_ERROR("Error in callback: %s", e.what());
+      current_value = initial_value;
+    }
+    callPostUpdateCallback();
+  }
   getRegisteredVector<T>().push_back(boost::make_unique<CallbackRegisteredParam<T>>(
       name, description, min, max, current_value, callback, enum_dict, enum_description, group));
 }
@@ -190,21 +250,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
 {
   ROS_DEBUG_STREAM("Called config callback of ddynamic_reconfigure");
 
-  if (pre_update_callback_)
-  {
-    try
-    {
-      pre_update_callback_();
-    }
-    catch (std::exception &e)
-    {
-      ROS_WARN("Reconfigure pre update callback failed with exception %s: ", e.what());
-    }
-    catch (...)
-    {
-      ROS_WARN("Reconfigure pre update callback failed with unprintable exception.");
-    }
-  }
+  callPreUpdateCallback();
 
   updated_config_ = req.config;
   if (auto_update_)
@@ -257,21 +303,7 @@ bool DDynamicReconfigure::setConfigCallback(dynamic_reconfigure::Reconfigure::Re
      */
   // std::cerr<<req.config<<std::endl;
 
-  if (post_update_callback_)
-  {
-    try
-    {
-      post_update_callback_();
-    }
-    catch (std::exception &e)
-    {
-      ROS_WARN("Reconfigure post update callback failed with exception %s: ", e.what());
-    }
-    catch (...)
-    {
-      ROS_WARN("Reconfigure post update callback failed with unprintable exception.");
-    }
-  }
+  callPostUpdateCallback();
 
   dynamic_reconfigure::Config config_msg = generateConfig();
   update_pub_.publish(config_msg);
@@ -341,6 +373,44 @@ void DDynamicReconfigure::setPostUpdateCallback(const DDynamicReconfigure::UserC
 void DDynamicReconfigure::clearPostUpdateCallback()
 {
   post_update_callback_.clear();
+}
+
+void DDynamicReconfigure::callPreUpdateCallback()
+{
+  if (pre_update_callback_)
+  {
+    try
+    {
+      pre_update_callback_();
+    }
+    catch (const std::exception &e)
+    {
+      ROS_WARN("Reconfigure pre update callback failed with exception %s: ", e.what());
+    }
+    catch (...)
+    {
+      ROS_WARN("Reconfigure pre update callback failed with unprintable exception.");
+    }
+  }
+}
+
+void DDynamicReconfigure::callPostUpdateCallback()
+{
+  if (post_update_callback_)
+  {
+    try
+    {
+      post_update_callback_();
+    }
+    catch (const std::exception &e)
+    {
+      ROS_WARN("Reconfigure post update callback failed with exception %s: ", e.what());
+    }
+    catch (...)
+    {
+      ROS_WARN("Reconfigure post update callback failed with unprintable exception.");
+    }
+  }
 }
 
 void DDynamicReconfigure::RegisterVariable(double *variable, std::string id, double min, double max)
