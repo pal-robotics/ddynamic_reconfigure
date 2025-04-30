@@ -32,6 +32,7 @@
 #define _DDYNAMIC_RECONFIGURE_
 
 #include <dynamic_reconfigure/server.h>
+#include <ddynamic_reconfigure/exception.h>
 #include <ddynamic_reconfigure/registered_param.h>
 #include <ddynamic_reconfigure/ddynamic_reconfigure_utils.h>
 #include <ros/ros.h>
@@ -186,6 +187,9 @@ protected:
                                  dynamic_reconfigure::Reconfigure::Response &rsp);
 
   virtual void updateConfigData(const dynamic_reconfigure::Config &config);
+
+  virtual void callPreUpdateCallback();
+  virtual void callPostUpdateCallback();
 
   /**
    * @brief setUserCallback Set a function to be called when parameters have changed

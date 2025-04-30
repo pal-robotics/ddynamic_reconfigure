@@ -315,6 +315,37 @@ TEST_F(DDynamicReconfigureTest, threadTest)
   ASSERT_EQ("bool_param", cfg_msg_->bools[0].name);
   ASSERT_EQ(bool_param, cfg_msg_->bools[0].value);
 }
+
+TEST_F(DDynamicReconfigureTest, callbackExceptionTest)
+{
+  ros::NodeHandle nh("~");
+  DDynamicReconfigure dd(nh);
+
+  int int_value = 0;
+
+  dd.registerVariable<int>(
+    "int_param", &int_value,
+    [](int new_value) { if (new_value < 0) { throw CallbackException("test"); } });
+  dd.PublishServicesTopics();
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+
+  dynamic_reconfigure::Reconfigure srv;
+  dynamic_reconfigure::IntParameter int_param;
+  int_param.name = "int_param";
+  int_param.value = 10;
+  srv.request.config.ints.push_back(int_param);
+
+  // Update request should be accepted because no exception is raised in the callback
+  EXPECT_EQ(int_value, 0);
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  EXPECT_EQ(int_value, 10);
+
+  // Update request should be rejected because exception is raised in the callback
+  int_param.value = -100;
+  EXPECT_TRUE(ros::service::call(nh.getNamespace() + "/set_parameters", srv));
+  EXPECT_EQ(int_value, 10);  // The value is unchanged
+}
 }
 
 

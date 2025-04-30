@@ -36,6 +36,8 @@
 #include <type_traits>
 #include <boost/function.hpp>
 #include <dynamic_reconfigure/ParamDescription.h>
+#include <ddynamic_reconfigure/exception.h>
+
 namespace ddynamic_reconfigure
 {
 template <typename T>
@@ -183,9 +185,19 @@ public:
   }
   void updateValue(T new_value) override
   {
-    *variable_ = new_value;
     if (!callback_.empty())
-      callback_(new_value);
+    {
+      try
+      {
+	callback_(new_value);
+      }
+      catch (const CallbackException& e)
+      {
+	ROS_ERROR("Error in callback: %s", e.what());
+	return;
+      }
+    }
+    *variable_ = new_value;
   }
 
 protected:
@@ -216,7 +228,18 @@ public:
 
   void updateValue(T new_value) override
   {
-    callback_(new_value);
+    if (!callback_.empty())
+    {
+      try
+      {
+	callback_(new_value);
+      }
+      catch (const CallbackException& e)
+      {
+	ROS_ERROR("Error in callback: %s", e.what());
+	return;
+      }
+    }
     current_value_ = new_value;
   }
 
